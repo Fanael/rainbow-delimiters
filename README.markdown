@@ -20,16 +20,16 @@ Installation instructions:
 1. Place rainbow-delimiters.el on your emacs load-path.
 
 2. Compile the file (necessary for speed):
-    M-x byte-compile-file <location of rainbow-delimiters.el>
+    <code>M-x byte-compile-file <location of rainbow-delimiters.el></code>
 3. Add the following to your dot-emacs/init file:
-    (require 'rainbow-delimiters)
+    <code>(require 'rainbow-delimiters)</code>
 4. Add hooks for modes where you want it enabled, for example:
-    (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
+    <code>(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)</code>
 - To activate rainbow-delimiters mode temporarily in a buffer:
-    M-x rainbow-delimiters-mode
+    <code>M-x rainbow-delimiters-mode</code>
 5. When using a dark background, if delimiter colors seem washed out
 you may need to add the following to your dot-emacs and restart:
-    (setq-default 'frame-background-mode 'dark)
+    <code>(setq-default 'frame-background-mode 'dark)</code>
 
 This is because Emacs can guess frame-background-mode incorrectly,
 causing rainbow-delimiters to use its light color scheme on dark
