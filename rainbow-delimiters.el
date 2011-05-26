@@ -4,7 +4,7 @@
 ;; Author: Jeremy L. Rayman <jeremy.rayman@gmail.com>
 ;; Maintainer: Jeremy L. Rayman <jeremy.rayman@gmail.com>
 ;; Created: 2010-09-02
-;; Version: 1.3
+;; Version: 1.3.1
 ;; Keywords: faces, convenience, lisp, matching, tools, rainbow, rainbow parentheses, rainbow parens
 ;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
 ;; URL: http://www.emacswiki.org/emacs/download/rainbow-delimiters.el
@@ -64,7 +64,7 @@
 ;;
 ;; 5. When using a dark background, if delimiter colors seem washed out
 ;;   you may need to add the following to your dot-emacs and restart:
-;; (setq-default 'frame-background-mode 'dark)
+;; (setq-default frame-background-mode 'dark)
 ;;
 ;; This is because Emacs can guess frame-background-mode incorrectly,
 ;; causing rainbow-delimiters to use its light color scheme on dark
@@ -112,6 +112,10 @@
 ;;  - Improvements to Customize interface.
 ;;  - Infinite depth support by cycling through defined faces repeatedly.
 ;;  - Documentation changes.
+;; 1.3.1 (2011-05-25)
+;;  - Light color theme appears entirely grey on SRGB monitors. Revert to
+;;    old color theme until a nicer light background theme can be added.
+;;  - Correct typo in the installation step for users of dark backgrounds.
 
 ;;; TODO:
 
@@ -196,7 +200,7 @@ Nil disables brace highlighting."
 
 ;; Unmatched delimiter face:
 (defface rainbow-delimiters-unmatched-face
-  '((((background light)) (:foreground "#DD090B"))
+  '((((background light)) (:foreground "#88090B"))
     (((background dark)) (:foreground "#88090B")))
   "Face to color unmatched closing delimiters with."
   :group 'rainbow-delimiters-faces)
@@ -214,49 +218,49 @@ Nil disables brace highlighting."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-2-face
-  '((((background light)) (:foreground "#6e7e94"))
+  '((((background light)) (:foreground "#93a8c6"))
     (((background dark)) (:foreground "#93a8c6")))
   "Nested delimiters face, depth 2."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-3-face
-  '((((background light)) (:foreground "#84847a"))
+  '((((background light)) (:foreground "#b0b1a3"))
     (((background dark)) (:foreground "#b0b1a3")))
   "Nested delimiters face, depth 3."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-4-face
-  '((((background light)) (:foreground "#718472"))
+  '((((background light)) (:foreground "#97b098"))
     (((background dark)) (:foreground "#97b098")))
   "Nested delimiters face, depth 4."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-5-face
-  '((((background light)) (:foreground "#828ea2"))
+  '((((background light)) (:foreground "#aebed8"))
     (((background dark)) (:foreground "#aebed8")))
   "Nested delimiters face, depth 5."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-6-face
-  '((((background light)) (:foreground "#848486"))
+  '((((background light)) (:foreground "#b0b0b3"))
     (((background dark)) (:foreground "#b0b0b3")))
   "Nested delimiters face, depth 6."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-7-face
-  '((((background light)) (:foreground "#6c7e6c"))
+  '((((background light)) (:foreground "#90a890"))
     (((background dark)) (:foreground "#90a890")))
   "Nested delimiters face, depth 7."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-8-face
-  '((((background light)) (:foreground "#7988a3"))
+  '((((background light)) (:foreground "#a2b6da"))
     (((background dark)) (:foreground "#a2b6da")))
   "Nested delimiters face, depth 8."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-9-face
-  '((((background light)) (:foreground "#758881"))
+  '((((background light)) (:foreground "#9cb6ad"))
     (((background dark)) (:foreground "#9cb6ad")))
   "Nested delimiters face, depth 9."
   :group 'rainbow-delimiters-faces)

@@ -20,6 +20,7 @@ Installation instructions:
 1. Place rainbow-delimiters.el on your emacs load-path.
 
 2. Compile the file (necessary for speed):
+
     <code>M-x byte-compile-file <location of rainbow-delimiters.el></code>
 3. Add the following to your dot-emacs/init file:
     <code>(require 'rainbow-delimiters)</code>
@@ -29,7 +30,7 @@ Installation instructions:
     <code>M-x rainbow-delimiters-mode</code>
 5. When using a dark background, if delimiter colors seem washed out
 you may need to add the following to your dot-emacs and restart:
-    <code>(setq-default 'frame-background-mode 'dark)</code>
+    <code>(setq-default frame-background-mode 'dark)</code>
 
 This is because Emacs can guess frame-background-mode incorrectly,
 causing rainbow-delimiters to use its light color scheme on dark
