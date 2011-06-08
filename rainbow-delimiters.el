@@ -124,7 +124,7 @@
 ;; - Add Python support - highlighting parens according to indentation level.
 ;; - Add support for nested tags (XML, HTML)
 ;; - Set up proper example color-theme.el themes for rainbow-delimiters mode.
-;; - Intelligent support for other languages: Ruby, et al.
+;; - Intelligent support for other languages: Ruby, LaTeX tags, et al.
 
 ;;; Issues:
 
