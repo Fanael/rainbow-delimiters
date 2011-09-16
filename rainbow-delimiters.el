@@ -463,7 +463,7 @@ Used by jit-lock for dynamic highlighting."
   (if (not rainbow-delimiters-mode)
       (progn
         (jit-lock-unregister 'rainbow-delimiters-propertize-region)
-        (rainbow-delimiters-unpropertize-region (point-min) (1- (point-max))))
+        (rainbow-delimiters-unpropertize-region (point-min) (point-max)))
     (jit-lock-register 'rainbow-delimiters-propertize-region t)))
 
 ;;;###autoload
