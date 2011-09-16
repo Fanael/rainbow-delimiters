@@ -116,6 +116,9 @@
 ;;  - Light color theme appears entirely grey on SRGB monitors. Revert to
 ;;    old color theme until a nicer light background theme can be added.
 ;;  - Correct typo in the installation step for users of dark backgrounds.
+;; 1.4 (XXXX-XX-XX)
+;;  - Add 'global-rainbow-delimiters-mode'.
+
 
 ;;; TODO:
 
