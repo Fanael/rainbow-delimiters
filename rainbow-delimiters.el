@@ -459,6 +459,9 @@ Used by jit-lock for dynamic highlighting."
         (rainbow-delimiters-unpropertize-region (point-min) (1- (point-max))))
     (jit-lock-register 'rainbow-delimiters-propertize-region t)))
 
+;;;###autoload
+(define-globalized-minor-mode global-rainbow-delimiters-mode
+  rainbow-delimiters-mode rainbow-delimiters-mode)
 
 (provide 'rainbow-delimiters)
 
