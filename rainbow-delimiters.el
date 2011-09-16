@@ -134,7 +134,6 @@
 ;;   causing users of dark backgrounds to receive the wrong set of colors.
 ;;   See step number 5 in the Installation section.
 
-
 ;;; Contributors / Thanks :
 ;; - Contributors:
 ;;   None so far.
