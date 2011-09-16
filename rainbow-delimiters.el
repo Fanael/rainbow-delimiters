@@ -135,6 +135,13 @@
 ;;   See step number 5 in the Installation section.
 
 
+;;; Contributors / Thanks :
+;; - Contributors:
+;;   None so far.
+;; - Thanks:
+;;   Satya Mishra: initial idea for a global-rainbow-delimiters-mode.
+
+
 ;;; Code:
 
 (eval-when-compile (require 'cl))
