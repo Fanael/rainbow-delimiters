@@ -7,7 +7,9 @@ Rainbow-delimiters is a "rainbow parentheses"-like Emacs mode for coloring paren
 This is the official github repository for rainbow-delimiters. It is made available so people can easily contribute to the mode.
 
 The latest release of rainbow-delimiters.el is always found at the following location on EmacsWiki:
+<p>
 [rainbow-delimiters.el](http://www.emacswiki.org/emacs/download/rainbow-delimiters.el)
+</p>
 
 Further information is available on the [EmacsWiki page](http://www.emacswiki.org/emacs/RainbowDelimiters):
 <br />http://www.emacswiki.org/emacs/RainbowDelimiters
