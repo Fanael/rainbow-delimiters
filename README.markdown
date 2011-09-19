@@ -6,11 +6,11 @@ Rainbow-delimiters is a "rainbow parentheses"-like Emacs mode for coloring paren
 
 This is the official github repository for rainbow-delimiters. It is made available so people can easily contribute to the mode.
 
-The latest version of rainbow-delimiters.el is always found at the following location on EmacsWiki:
-http://www.emacswiki.org/emacs/download/rainbow-delimiters.el
+The latest release of rainbow-delimiters.el is always found at the following location on EmacsWiki:
+[rainbow-delimiters.el](http://www.emacswiki.org/emacs/download/rainbow-delimiters.el)
 
-Further information is available on the EmacsWiki page:
-http://www.emacswiki.org/emacs/RainbowDelimiters
+Further information is available on the [EmacsWiki page](http://www.emacswiki.org/emacs/RainbowDelimiters):
+<br />http://www.emacswiki.org/emacs/RainbowDelimiters
 
 
 
@@ -20,23 +20,23 @@ Installation instructions:
 1. Place rainbow-delimiters.el on your emacs load-path.
 
 2. Compile the file (necessary for speed):
-
-    <code>M-x byte-compile-file <location of rainbow-delimiters.el></code>
+<br /><code>M-x byte-compile-file <location of rainbow-delimiters.el></code>
 3. Add the following to your dot-emacs/init file:
-    <code>(require 'rainbow-delimiters)</code>
-4. Add hooks for modes where you want it enabled, for example:
-    <code>(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)</code>
-- To activate rainbow-delimiters mode temporarily in a buffer:
-    <code>M-x rainbow-delimiters-mode</code>
-5. When using a dark background, if delimiter colors seem washed out
-you may need to add the following to your dot-emacs and restart:
-    <code>(setq-default frame-background-mode 'dark)</code>
+<br /><code>(require 'rainbow-delimiters)</code>
+4. Activate the mode in your init file.
+<br />
+You can choose to enable it only in certain modes, or Emacs-wide:
 
-This is because Emacs can guess frame-background-mode incorrectly,
-causing rainbow-delimiters to use its light color scheme on dark
-backgrounds.
 
-The light/dark color schemes differ only in their brightness level.
+- To enable it only in specific modes, add lines like the following:
+<br /><code>(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)</code>
 
+
+- To activate the mode globally, add to your init file:
+<br /><code>(global-rainbow-delimiters-mode)</code>
+
+
+- To temporarily activate rainbow-delimiters mode in an open buffer:
+<br /><code>M-x rainbow-delimiters-mode</code>
 
 Additional discussion is at the top of the file and on the EmacsWiki page linked to above.
