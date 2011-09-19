@@ -32,15 +32,15 @@ Installation instructions:
 You can choose to enable it only in certain modes, or Emacs-wide:
 
 
-<pre>-</pre> To enable it only in specific modes, add lines like the following:
+* To enable it only in specific modes, add lines like the following:
 <br /><code>(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)</code>
 
 
-<pre>-</pre> To activate the mode globally, add to your init file:
+* To activate the mode globally, add to your init file:
 <br /><code>(global-rainbow-delimiters-mode)</code>
 
 
-<pre>-</pre> To temporarily activate rainbow-delimiters mode in an open buffer:
+* To temporarily activate rainbow-delimiters mode in an open buffer:
 <br /><code>M-x rainbow-delimiters-mode</code>
 
 Additional discussion is at the top of the file and on the EmacsWiki page linked to above.
