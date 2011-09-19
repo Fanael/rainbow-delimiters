@@ -56,10 +56,16 @@
 ;; 3. Add the following to your dot-emacs/init file:
 ;; (require 'rainbow-delimiters)
 ;;
-;; 4. Add hooks for modes where you want it enabled, for example:
+;; 4. Activate the mode in your init file.
+;;    You can choose to enable it only in certain modes, or Emacs-wide:
+;;
+;; - To enable it only in specific modes, add lines like the following:
 ;; (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
 ;;
-;; - To activate rainbow-delimiters mode temporarily in a buffer:
+;; - To activate the mode globally, add to your init file:
+;; (global-rainbow-delimiters-mode)
+;;
+;; - To temporarily activate rainbow-delimiters mode in an open buffer:
 ;; M-x rainbow-delimiters-mode
 ;;
 ;; 5. When using a dark background, if delimiter colors seem washed out
