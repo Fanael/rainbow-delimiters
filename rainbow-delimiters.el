@@ -67,16 +67,7 @@
 ;;
 ;; - To temporarily activate rainbow-delimiters mode in an open buffer:
 ;; M-x rainbow-delimiters-mode
-;;
-;; 5. When using a dark background, if delimiter colors seem washed out
-;;   you may need to add the following to your dot-emacs and restart:
-;; (setq-default frame-background-mode 'dark)
-;;
-;; This is because Emacs can guess frame-background-mode incorrectly,
-;; causing rainbow-delimiters to use its light color scheme on dark
-;; backgrounds.
-;;
-;; The light/dark color schemes differ only in their brightness level.
+
 
 ;;; Customization:
 
