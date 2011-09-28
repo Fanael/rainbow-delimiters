@@ -467,7 +467,7 @@ Used by jit-lock for dynamic highlighting."
 
 ;;;###autoload
 (define-globalized-minor-mode global-rainbow-delimiters-mode
-  rainbow-delimiters-mode rainbow-delimiters-mode)
+  rainbow-delimiters-mode (lambda () (rainbow-delimiters-mode 1)))
 
 (provide 'rainbow-delimiters)
 
