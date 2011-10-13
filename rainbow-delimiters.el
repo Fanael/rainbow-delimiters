@@ -115,7 +115,8 @@
 ;;  - Correct typo in the installation step for users of dark backgrounds.
 ;; 1.4-BETA (currently under development; this file is not a release)
 ;;  - Add 'global-rainbow-delimiters-mode'.
-
+;;  - Bugfix: Respect syntax of current buffer major-mode so delimiters
+;;            highlight correctly in non-lisp languages.
 
 ;;; TODO:
 
