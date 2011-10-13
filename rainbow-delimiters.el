@@ -308,24 +308,32 @@ e.g. 'rainbow-delimiters-depth-1-face'."
 
 ;;; Nesting level
 
+(defvar rainbow-delimiters-all-delimiters-syntax-table nil
+  "Syntax table (inherited from buffer major-mode) which uses all delimiters.
+
+When rainbow-delimiters-minor-mode is activated, it sets this variable and
+the other rainbow-delmiters specific syntax tables based on the current
+major-mode. This syntax table is constructed by function
+rainbow-delimiters-make-syntax-table-all-delimiters.")
+
 ;; syntax-table: used with parse-partial-sexp for determining current depth.
-(defvar rainbow-delimiters-delim-syntax-table
-  (let ((table (copy-syntax-table emacs-lisp-mode-syntax-table)))
+(defun rainbow-delimiters-make-syntax-table-all-delimiters (syntax-table)
+  "Syntax table for recognizing all supported delimiter types."
+  (let ((table (copy-syntax-table syntax-table)))
     (modify-syntax-entry ?\( "()  " table)
     (modify-syntax-entry ?\) ")(  " table)
     (modify-syntax-entry ?\[ "(]" table)
     (modify-syntax-entry ?\] ")[" table)
     (modify-syntax-entry ?\{ "(}" table)
     (modify-syntax-entry ?\} "){" table)
-    table)
-  "Syntax table for recognizing all supported delimiter types.")
+    table))
 
 (defun rainbow-delimiters-depth (point)
   "Return # of nested levels of parens, brackets, braces POINT is inside of."
   (save-excursion
       (beginning-of-defun)
       (let ((depth
-             (with-syntax-table rainbow-delimiters-delim-syntax-table
+             (with-syntax-table rainbow-delimiters-all-delimiters-syntax-table
                (car (parse-partial-sexp (point) point)))))
         (if (>= depth 0)
             depth
@@ -463,7 +471,10 @@ Used by jit-lock for dynamic highlighting."
       (progn
         (jit-lock-unregister 'rainbow-delimiters-propertize-region)
         (rainbow-delimiters-unpropertize-region (point-min) (point-max)))
-    (jit-lock-register 'rainbow-delimiters-propertize-region t)))
+    (jit-lock-register 'rainbow-delimiters-propertize-region t)
+    ;; Create necessary syntax tables inheriting from current major-mode.
+    (set (make-local-variable 'rainbow-delimiters-all-delimiters-syntax-table)
+         (rainbow-delimiters-make-syntax-table-all-delimiters (syntax-table)))))
 
 ;;;###autoload
 (define-globalized-minor-mode global-rainbow-delimiters-mode
