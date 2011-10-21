@@ -1,4 +1,4 @@
-;;; rainbow-delimiters.el --- Highlight nested parens, brackets, and braces using different subtle colors at each depth.
+;;; rainbow-delimiters.el --- Highlight nested parens, brackets, and braces using different colors at each depth.
 
 ;; Copyright (C) 2010-2011 Jeremy L. Rayman.
 ;; Author: Jeremy L. Rayman <jeremy.rayman@gmail.com>
