@@ -1,4 +1,4 @@
-;;; rainbow-delimiters.el --- Highlight nested parens, brackets, and braces using different colors at each depth.
+;;; rainbow-delimiters.el --- Highlight nested parens, brackets, braces a different color at each depth.
 
 ;; Copyright (C) 2010-2011 Jeremy L. Rayman.
 ;; Author: Jeremy L. Rayman <jeremy.rayman@gmail.com>
@@ -25,28 +25,24 @@
 
 
 ;;; Commentary:
-
-;; This is a "rainbow parentheses" mode which includes support for
-;; parens "()", brackets "[]", and braces "{}". It conveys nesting
-;; depth by using a different color for delimiters at each depth
-;; level. It highlights all statements at a given level using the same
-;; color - if several statements are at the same depth, their
-;; delimiters will all be highlighted the same color.
+;;
+;; Rainbow-delimiters is a “rainbow parentheses”-like mode which highlights
+;; parentheses, brackets, and braces according to their depth. Each
+;; successive level is highlighted in a different color. This makes it easy
+;; to spot matching delimiters, orient yourself in the code, and tell which
+;; statements are at a given level.
 ;;
 ;; Great care has been taken to make this mode FAST. You should see no
 ;; discernible change in scrolling or editing speed while using it,
-;; even with delimiter-rich languages like Clojure, Lisp, and Scheme.
-;;
-;; The ultimate goal for the mode is to be useful with a wide variety
-;; of programming languages with optional semantics catered to each.
+;; even in delimiter-rich languages like Clojure, Lisp, and Scheme.
 ;;
 ;; Default colors are subtle, with the philosophy that syntax highlighting
 ;; shouldn't being visually intrusive. Color schemes are always a matter
 ;; of taste.  If you take the time to design a new color scheme,
-;; please share it (even a simple list of colors works) via github or
-;; on the EmacsWiki page.
-;; Github: http://github.com/jlr/rainbow-delimiters
+;; please share it (even a simple list of colors works) on the EmacsWiki
+;; page or via github.
 ;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
+;; Github: http://github.com/jlr/rainbow-delimiters
 
 
 ;;; Installation:
