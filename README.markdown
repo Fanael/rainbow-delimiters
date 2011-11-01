@@ -2,7 +2,11 @@
 rainbow-delimiters.el:
 ======================
 
-Rainbow-delimiters is a "rainbow parentheses"-like Emacs mode for coloring parentheses, brackets, and braces according to their nested depth. It gives a visual reference for which delimiters match, and what statements are at the same depth - if several statements are at the same level, they will be the same color.
+RainbowDelimiters is a “rainbow parentheses”-like mode which highlights parentheses, brackets, and braces according to their depth. Each successive level is highlighted in a different color. This makes it easy to spot matching delimiters, orient yourself in the code, and tell which statements are at a given depth.
+
+Great care has been taken to make this mode FAST. You shouldn’t see any change in scrolling or editing speed when it’s on even when working in delimiter-rich languages like Clojure, Lisp and Scheme.
+
+You can customize the colors RainbowDelimiters uses. The default colors are intentionally subtle; they are unobtrusive enough to make the mode worth looking at even if you usually don’t like rainbow parentheses modes.
 
 This is the official github repository for rainbow-delimiters. It is made available so people can easily contribute to the mode.
 
