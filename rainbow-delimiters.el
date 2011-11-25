@@ -4,7 +4,7 @@
 ;; Author: Jeremy L. Rayman <jeremy.rayman@gmail.com>
 ;; Maintainer: Jeremy L. Rayman <jeremy.rayman@gmail.com>
 ;; Created: 2010-09-02
-;; Version: 1.3.2
+;; Version: 1.3.3
 ;; Keywords: faces, convenience, lisp, matching, tools, rainbow, rainbow parentheses, rainbow parens
 ;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
 ;; Github: http://github.com/jlr/rainbow-delimiters
@@ -118,6 +118,9 @@
 ;;  - Add 'global-rainbow-delimiters-mode'.
 ;;  - Respect syntax of current buffer major-mode so delimiters
 ;;    highlight correctly in non-lisp languages.
+;; 1.3.3 (2011-11-25)
+;;  - Backwards compatibility with Emacs versions prior to 23.2.
+;;    Defines "with-silent-modifications" if undefined.
 
 ;;; TODO:
 
@@ -332,6 +335,40 @@ major-mode. The syntax table is constructed by the function
 
 
 ;;; Text properties
+
+;; Backwards compatibility: Emacs < v23.2 lack macro 'with-silent-modifications'.
+(eval-and-compile
+  (unless (fboundp 'with-silent-modifications)
+    (defmacro with-silent-modifications (&rest body)
+      "Defined by rainbow-delimiters.el for backwards compatibility with Emacs < 23.2.
+ Execute BODY, pretending it does not modify the buffer.
+If BODY performs real modifications to the buffer's text, other
+than cosmetic ones, undo data may become corrupted.
+
+This macro will run BODY normally, but doesn't count its buffer
+modifications as being buffer modifications.  This affects things
+like buffer-modified-p, checking whether the file is locked by
+someone else, running buffer modification hooks, and other things
+of that nature.
+
+Typically used around modifications of text-properties which do
+not really affect the buffer's content."
+      (declare (debug t) (indent 0))
+      (let ((modified (make-symbol "modified")))
+        `(let* ((,modified (buffer-modified-p))
+                (buffer-undo-list t)
+                (inhibit-read-only t)
+                (inhibit-modification-hooks t)
+                deactivate-mark
+                ;; Avoid setting and removing file locks and checking
+                ;; buffer's uptodate-ness w.r.t the underlying file.
+                buffer-file-name
+                buffer-file-truename)
+           (unwind-protect
+               (progn
+                 ,@body)
+             (unless ,modified
+               (restore-buffer-modified-p nil))))))))
 
 (defsubst rainbow-delimiters-propertize-delimiter (loc depth)
   "Highlight a single delimiter at LOC according to DEPTH.
