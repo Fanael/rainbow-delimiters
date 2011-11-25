@@ -286,6 +286,8 @@ For example: 'rainbow-delimiters-depth-1-face'."
             (and (< depth rainbow-delimiters-max-face-count)
                  depth)
             ;; Deeper than # of defined faces; cycle back through to beginning.
+            ;; Depth 1 face is only applied to the outermost delimiter pair.
+            ;; Cycles infinitely through faces 2-9.
             (let ((cycled-depth (mod depth rainbow-delimiters-max-face-count)))
               (if (/= cycled-depth 0)
                   ;; Return face # that corresponds to current nesting level.
