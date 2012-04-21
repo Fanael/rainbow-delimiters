@@ -1,4 +1,3 @@
-
 rainbow-delimiters.el:
 ======================
 
@@ -38,6 +37,10 @@ You can choose to enable it only in certain modes, or Emacs-wide:
 
 * To enable it only in specific modes, add lines like the following:
 <br /><code>(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)</code>
+
+
+* To enable it for **all** programming modes, add the following line (emacs 24 or higher):
+<br /><code>(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)</code>
 
 
 * To activate the mode globally, add to your init file:
