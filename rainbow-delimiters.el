@@ -302,16 +302,16 @@ For example: 'rainbow-delimiters-depth-1-face'."
 
 ;;; Nesting level
 
-(defvar rainbow-delimiters-all-delimiters-syntax-table nil
+(defvar rainbow-delimiters-syntax-table nil
   "Syntax table (inherited from buffer major-mode) which uses all delimiters.
 
 When rainbow-delimiters-minor-mode is first activated, it sets this variable and
 the other rainbow-delimiters specific syntax tables based on the current
 major-mode. The syntax table is constructed by the function
-'rainbow-delimiters-make-syntax-table-all-delimiters'.")
+'rainbow-delimiters-make-syntax-table'.")
 
 ;; syntax-table: used with syntax-ppss for determining current depth.
-(defun rainbow-delimiters-make-syntax-table-all-delimiters (syntax-table)
+(defun rainbow-delimiters-make-syntax-table (syntax-table)
   "Inherit SYNTAX-TABLE and add delimiters intended to be highlighted by mode."
   (let ((table (copy-syntax-table syntax-table)))
     (modify-syntax-entry ?\( "()  " table)
@@ -325,7 +325,7 @@ major-mode. The syntax table is constructed by the function
 (defun rainbow-delimiters-depth (loc)
   "Return # of nested levels of parens, brackets, braces LOC is inside of."
   (let ((depth
-         (with-syntax-table rainbow-delimiters-all-delimiters-syntax-table
+         (with-syntax-table rainbow-delimiters-syntax-table
            (car (syntax-ppss loc)))))
     (if (>= depth 0)
         depth
@@ -493,8 +493,8 @@ Used by jit-lock for dynamic highlighting."
         (rainbow-delimiters-unpropertize-region (point-min) (point-max)))
     (jit-lock-register 'rainbow-delimiters-propertize-region t)
     ;; Create necessary syntax tables inheriting from current major-mode.
-    (set (make-local-variable 'rainbow-delimiters-all-delimiters-syntax-table)
-         (rainbow-delimiters-make-syntax-table-all-delimiters (syntax-table)))))
+    (set (make-local-variable 'rainbow-delimiters-syntax-table)
+         (rainbow-delimiters-make-syntax-table (syntax-table)))))
 
 ;;;###autoload
 (defun rainbow-delimiters-mode-enable ()
