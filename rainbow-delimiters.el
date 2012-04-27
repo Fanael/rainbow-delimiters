@@ -310,7 +310,7 @@ the other rainbow-delimiters specific syntax tables based on the current
 major-mode. The syntax table is constructed by the function
 'rainbow-delimiters-make-syntax-table-all-delimiters'.")
 
-;; syntax-table: used with parse-partial-sexp for determining current depth.
+;; syntax-table: used with syntax-ppss for determining current depth.
 (defun rainbow-delimiters-make-syntax-table-all-delimiters (syntax-table)
   "Inherit SYNTAX-TABLE and add delimiters intended to be highlighted by mode."
   (let ((table (copy-syntax-table syntax-table)))
@@ -322,16 +322,14 @@ major-mode. The syntax table is constructed by the function
     (modify-syntax-entry ?\} "){" table)
     table))
 
-(defun rainbow-delimiters-depth (point)
-  "Return # of nested levels of parens, brackets, braces POINT is inside of."
-  (save-excursion
-      (beginning-of-defun)
-      (let ((depth
-             (with-syntax-table rainbow-delimiters-all-delimiters-syntax-table
-               (car (parse-partial-sexp (point) point)))))
-        (if (>= depth 0)
-            depth
-          0)))) ; ignore negative depths created by unmatched closing parens.
+(defun rainbow-delimiters-depth (loc)
+  "Return # of nested levels of parens, brackets, braces LOC is inside of."
+  (let ((depth
+         (with-syntax-table rainbow-delimiters-all-delimiters-syntax-table
+           (car (syntax-ppss loc)))))
+    (if (>= depth 0)
+        depth
+      0))) ; ignore negative depths created by unmatched closing parens.
 
 
 ;;; Text properties
@@ -404,10 +402,7 @@ Returns t if char at loc meets one of the following conditions:
 - Inside a string.
 - Inside a comment.
 - Is an escaped char, e.g. ?\)"
-  (let ((parse-state (save-excursion
-                       (beginning-of-defun)
-                       ;; (point) is at beg-of-defun; loc is the char location
-                       (parse-partial-sexp (point) loc))))
+  (let ((parse-state (syntax-ppss loc)))
     (or
      (nth 3 parse-state)                ; inside string?
      (nth 4 parse-state)                ; inside comment?
