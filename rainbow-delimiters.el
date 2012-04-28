@@ -214,56 +214,56 @@ Nil disables brace highlighting."
 
 ;; Faces for highlighting delimiters by nested level:
 (defface rainbow-delimiters-depth-1-face
-  '((((background light)) (:foreground "grey55"))
+  '((((background light)) (:foreground "#707183"))
     (((background dark)) (:foreground "grey55")))
   "Nested delimiters face, depth 1 - outermost set."
   :tag "Rainbow Delimiters Depth 1 Face -- OUTERMOST"
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-2-face
-  '((((background light)) (:foreground "#93a8c6"))
+  '((((background light)) (:foreground "#7388d6"))
     (((background dark)) (:foreground "#93a8c6")))
   "Nested delimiters face, depth 2."
   :group 'rainbow-delimiters-faces)
-
+679868
 (defface rainbow-delimiters-depth-3-face
-  '((((background light)) (:foreground "#b0b1a3"))
+  '((((background light)) (:foreground "#909183"))
     (((background dark)) (:foreground "#b0b1a3")))
   "Nested delimiters face, depth 3."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-4-face
-  '((((background light)) (:foreground "#97b098"))
+  '((((background light)) (:foreground "#709870"))
     (((background dark)) (:foreground "#97b098")))
   "Nested delimiters face, depth 4."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-5-face
-  '((((background light)) (:foreground "#aebed8"))
+  '((((background light)) (:foreground "#907373"))
     (((background dark)) (:foreground "#aebed8")))
   "Nested delimiters face, depth 5."
   :group 'rainbow-delimiters-faces)
-
+((((((((((((((((()))))))))))))))))
 (defface rainbow-delimiters-depth-6-face
-  '((((background light)) (:foreground "#b0b0b3"))
+  '((((background light)) (:foreground "#6276ba"))
     (((background dark)) (:foreground "#b0b0b3")))
   "Nested delimiters face, depth 6."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-7-face
-  '((((background light)) (:foreground "#90a890"))
+  '((((background light)) (:foreground "#858580"))
     (((background dark)) (:foreground "#90a890")))
   "Nested delimiters face, depth 7."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-8-face
-  '((((background light)) (:foreground "#a2b6da"))
+  '((((background light)) (:foreground "#80a880"))
     (((background dark)) (:foreground "#a2b6da")))
   "Nested delimiters face, depth 8."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-depth-9-face
-  '((((background light)) (:foreground "#9cb6ad"))
+  '((((background light)) (:foreground "#887070"))
     (((background dark)) (:foreground "#9cb6ad")))
   "Nested delimiters face, depth 9."
   :group 'rainbow-delimiters-faces)
