@@ -1,14 +1,14 @@
 ;;; rainbow-delimiters.el --- Highlight nested parens, brackets, braces a different color at each depth.
 
-;; Copyright (C) 2010-2011 Jeremy L. Rayman.
+;; Copyright (C) 2010-2012 Jeremy L. Rayman.
 ;; Author: Jeremy L. Rayman <jeremy.rayman@gmail.com>
 ;; Maintainer: Jeremy L. Rayman <jeremy.rayman@gmail.com>
 ;; Created: 2010-09-02
-;; Version: 1.3.3
+;; Version: 1.3.4
 ;; Keywords: faces, convenience, lisp, matching, tools, rainbow, rainbow parentheses, rainbow parens
 ;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
 ;; Github: http://github.com/jlr/rainbow-delimiters
-;; URL: http://www.emacswiki.org/emacs/download/rainbow-delimiters.el
+;; URL: http://github.com/jlr/rainbow-delimiters/raw/master/rainbow-delimiters.el
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,15 +32,14 @@
 ;; to spot matching delimiters, orient yourself in the code, and tell which
 ;; statements are at a given level.
 ;;
-;; Great care has been taken to make this mode FAST. You should see no
-;; discernible change in scrolling or editing speed while using it,
+;; Great care has been taken to make this mode FAST. You shouldn't see
+;; any discernible change in scrolling or editing speed while using it,
 ;; even in delimiter-rich languages like Clojure, Lisp, and Scheme.
 ;;
 ;; Default colors are subtle, with the philosophy that syntax highlighting
-;; shouldn't being visually intrusive. Color schemes are always a matter
-;; of taste.  If you take the time to design a new color scheme,
-;; please share it (even a simple list of colors works) on the EmacsWiki
-;; page or via github.
+;; shouldn't be visually intrusive. Color schemes are always a matter of
+;; taste.  If you take the time to design a new color scheme, please share
+;; (even a simple list of colors works) on the EmacsWiki page or via github.
 ;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
 ;; Github: http://github.com/jlr/rainbow-delimiters
 
@@ -58,8 +57,11 @@
 ;; 4. Activate the mode in your init file.
 ;;    You can choose to enable it only in certain modes, or Emacs-wide:
 ;;
-;; - To enable it only in specific modes, add lines like the following:
+;; - To enable it only in certain modes, add lines like the following:
 ;; (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
+;;
+;; - To enable it in all programming-related emacs modes (Emacs 24+):
+;; (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 ;;
 ;; - To activate the mode globally, add to your init file:
 ;; (global-rainbow-delimiters-mode)
@@ -75,9 +77,8 @@
 ;; To customize various options, including the color scheme:
 ;; M-x customize-group rainbow-delimiters
 ;;
-;; color-theme.el users:
-;; If you use the color-theme package, you can specify custom colors
-;; by adding the appropriate faces to your theme.
+;; deftheme / color-theme.el users:
+;; You can specify custom colors by adding the appropriate faces to your theme.
 ;; - Faces take the form of:
 ;;   'rainbow-delimiters-depth-#-face' with # being the depth.
 ;;   Depth begins at 1, the outermost color.
@@ -121,6 +122,12 @@
 ;; 1.3.3 (2011-11-25)
 ;;  - Backwards compatibility with Emacs versions prior to 23.2.
 ;;    Defines "with-silent-modifications" if undefined.
+;; 1.3.4 (2012-04-27)
+;;  - Further optimize highlighting speed. Benchmarks show 2x improvement.
+;;  - Color scheme for light backgrounds.
+;;  - Eliminate bottleneck seen in certain large files.
+;;    A large file which revealed this bottleneck now highlights ~40x faster.
+;;  - Correct broken/incorrect highlighting reported in certain languages.
 
 ;;; TODO:
 
@@ -128,7 +135,7 @@
 ;;   for users of C-like languages.
 ;; - Python style - increase depth with each new indentation.
 ;; - Add support for nested tags (XML, HTML)
-;; - Set up proper example color-theme.el themes for rainbow-delimiters mode.
+;; - Set up proper example defthemes for rainbow-delimiters faces.
 ;; - Intelligent support for other languages: Ruby, LaTeX tags, et al.
 
 ;;; Issues:
@@ -225,7 +232,7 @@ Nil disables brace highlighting."
     (((background dark)) (:foreground "#93a8c6")))
   "Nested delimiters face, depth 2."
   :group 'rainbow-delimiters-faces)
-679868
+
 (defface rainbow-delimiters-depth-3-face
   '((((background light)) (:foreground "#909183"))
     (((background dark)) (:foreground "#b0b1a3")))
@@ -243,7 +250,7 @@ Nil disables brace highlighting."
     (((background dark)) (:foreground "#aebed8")))
   "Nested delimiters face, depth 5."
   :group 'rainbow-delimiters-faces)
-((((((((((((((((()))))))))))))))))
+
 (defface rainbow-delimiters-depth-6-face
   '((((background light)) (:foreground "#6276ba"))
     (((background dark)) (:foreground "#b0b0b3")))
