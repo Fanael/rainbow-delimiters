@@ -322,7 +322,7 @@ major-mode. The syntax table is constructed by the function
     (modify-syntax-entry ?\} "){" table)
     table))
 
-(defun rainbow-delimiters-depth (loc)
+(defsubst rainbow-delimiters-depth (loc)
   "Return # of nested levels of parens, brackets, braces LOC is inside of."
   (let ((depth
          (with-syntax-table rainbow-delimiters-syntax-table
@@ -395,7 +395,7 @@ Sets text properties:
                               rear-nonsticky nil))))
 
 
-(defun rainbow-delimiters-char-ineligible-p (loc)
+(defsubst rainbow-delimiters-char-ineligible-p (loc)
   "Return t if char at LOC should be skipped, e.g. if inside a comment.
 
 Returns t if char at loc meets one of the following conditions:
@@ -430,11 +430,11 @@ LOC is location of character (delimiter) to be colorized."
 ;;; JIT-Lock functionality
 
 ;; Used to skip delimiter-by-delimiter `rainbow-delimiters-propertize-region'.
-(defvar rainbow-delimiters-delim-regex "\\(\(\\|\)\\|\\[\\|\\]\\|\{\\|\}\\)"
+(defconst rainbow-delimiters-delim-regex "\\(\(\\|\)\\|\\[\\|\\]\\|\{\\|\}\\)"
   "Regex matching all opening and closing delimiters the mode highlights.")
 
 ;; main function called by jit-lock:
-(defun rainbow-delimiters-propertize-region (start end)
+(defsubst rainbow-delimiters-propertize-region (start end)
   "Highlight delimiters in region between START and END.
 
 Used by jit-lock for dynamic highlighting."
@@ -499,6 +499,10 @@ Used by jit-lock for dynamic highlighting."
 ;;;###autoload
 (defun rainbow-delimiters-mode-enable ()
   (rainbow-delimiters-mode 1))
+
+;;;###autoload
+(defun rainbow-delimiters-mode-disable ()
+  (rainbow-delimiters-mode 0))
 
 ;;;###autoload
 (define-globalized-minor-mode global-rainbow-delimiters-mode
