@@ -401,6 +401,27 @@ Sets text properties:
                             '(font-lock-face nil
                               rear-nonsticky nil))))
 
+(make-local-variable 'rainbow-delimiters-escaped-char-predicate)
+(setq rainbow-delimiters-escaped-char-predicate nil)
+
+(defvar rainbow-delimiters-escaped-char-predicate-list
+  '((emacs-lisp-mode . rainbow-delimiters-escaped-char-predicate-emacs-lisp)
+    (inferior-emacs-lisp-mode . rainbow-delimiters-escaped-char-predicate-emacs-lisp)
+    (lisp-mode . rainbow-delimiters-escaped-char-predicate-lisp)
+    (scheme-mode . rainbow-delimiters-escaped-char-predicate-lisp)
+    (clojure-mode . rainbow-delimiters-escaped-char-predicate-lisp)
+    (inferior-scheme-mode . rainbow-delimiters-escaped-char-predicate-lisp)
+    ))
+
+(defun rainbow-delimiters-escaped-char-predicate-emacs-lisp (loc)
+  (and (eq (char-before loc) ?\\)  ; escaped char, e.g. ?\) - not counted
+       (and (not (eq (char-before (1- loc)) ?\\)) ; special-case: ignore ?\\
+            (eq (char-before (1- loc)) ?\?))))
+;; NOTE: standard char read syntax '?)' is not tested for because emacs manual
+;; states punctuation such as delimiters should _always_ use escaped '?\)' form.
+
+(defun rainbow-delimiters-escaped-char-predicate-lisp (loc)
+  (eq (char-before loc) ?\\))
 
 (defsubst rainbow-delimiters-char-ineligible-p (loc)
   "Return t if char at LOC should be skipped, e.g. if inside a comment.
@@ -413,11 +434,8 @@ Returns t if char at loc meets one of the following conditions:
     (or
      (nth 3 parse-state)                ; inside string?
      (nth 4 parse-state)                ; inside comment?
-     (and (eq (char-before loc) ?\\)  ; escaped char, e.g. ?\) - not counted
-          (and (not (eq (char-before (1- loc)) ?\\)) ; special-case: ignore ?\\
-               (eq (char-before (1- loc)) ?\?))))))
-;; NOTE: standard char read syntax '?)' is not tested for because emacs manual
-;; states punctuation such as delimiters should _always_ use escaped '?\)' form.
+     (and rainbow-delimiters-escaped-char-predicate
+          (funcall rainbow-delimiters-escaped-char-predicate loc)))))
 
 
 (defsubst rainbow-delimiters-apply-color (delim depth loc)
@@ -445,6 +463,8 @@ LOC is location of character (delimiter) to be colorized."
   "Highlight delimiters in region between START and END.
 
 Used by jit-lock for dynamic highlighting."
+  (setq rainbow-delimiters-escaped-char-predicate
+        (cdr (assoc major-mode rainbow-delimiters-escaped-char-predicate-list)))
   (save-excursion
     (goto-char start)
     ;; START can be anywhere in buffer; determine the nesting depth at START loc
