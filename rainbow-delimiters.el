@@ -1,8 +1,8 @@
 ;;; rainbow-delimiters.el --- Highlight nested parens, brackets, braces a different color at each depth.
 
-;; Copyright (C) 2010-2012 Jeremy L. Rayman.
-;; Author: Jeremy L. Rayman <jeremy.rayman@gmail.com>
-;; Maintainer: Jeremy L. Rayman <jeremy.rayman@gmail.com>
+;; Copyright (C) 2010-2013 Jeremy Rayman.
+;; Author: Jeremy Rayman <opensource@jeremyrayman.com>
+;; Maintainer: Jeremy Rayman <opensource@jeremyrayman.com>
 ;; Created: 2010-09-02
 ;; Version: 1.3.4
 ;; Keywords: faces, convenience, lisp, matching, tools, rainbow, rainbow parentheses, rainbow parens
