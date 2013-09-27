@@ -289,7 +289,8 @@ Determines depth at which to cycle through faces again.")
   "Return face-name for DEPTH as a string 'rainbow-delimiters-depth-DEPTH-face'.
 
 For example: 'rainbow-delimiters-depth-1-face'."
-  (concat "rainbow-delimiters-depth-"
+  (intern-soft
+   (concat "rainbow-delimiters-depth-"
           (number-to-string
            (or
             ;; Our nesting depth has a face defined for it.
@@ -304,7 +305,7 @@ For example: 'rainbow-delimiters-depth-1-face'."
                   (mod depth rainbow-delimiters-max-face-count)
                 ;; Special case: depth divides evenly into max, correct face # is max.
                 rainbow-delimiters-max-face-count))))
-          "-face"))
+          "-face")))
 
 
 ;;; Nesting level
@@ -386,7 +387,7 @@ Sets text properties:
 `rear-nonsticky' to prevent color from bleeding into subsequent characters typed by the user."
   (with-silent-modifications
     (let ((delim-face (if (<= depth 0)
-                          "rainbow-delimiters-unmatched-face"
+                          'rainbow-delimiters-unmatched-face
                         (rainbow-delimiters-depth-face depth))))
       ;; (when (eq depth -1) (message "Unmatched delimiter at char %s." loc))
       (add-text-properties loc (1+ loc)
