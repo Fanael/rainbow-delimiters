@@ -415,11 +415,11 @@ Sets text properties:
     ))
 
 (defun rainbow-delimiters-escaped-char-predicate-emacs-lisp (loc)
-  (and (eq (char-before loc) ?\\)  ; escaped char, e.g. ?\) - not counted
-       (and (not (eq (char-before (1- loc)) ?\\)) ; special-case: ignore ?\\
-            (eq (char-before (1- loc)) ?\?))))
-;; NOTE: standard char read syntax '?)' is not tested for because emacs manual
-;; states punctuation such as delimiters should _always_ use escaped '?\)' form.
+  (or (and (eq (char-before loc) ?\?) ; e.g. ?) - deprecated, but people use it
+           (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
+                     (eq (char-before (- loc 2)) ?\?))))
+      (and (eq (char-before loc) ?\\) ; escaped char, e.g. ?\) - not counted
+           (eq (char-before (1- loc)) ?\?))))
 
 (defun rainbow-delimiters-escaped-char-predicate-lisp (loc)
   (eq (char-before loc) ?\\))
