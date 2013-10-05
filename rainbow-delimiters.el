@@ -402,8 +402,8 @@ Sets text properties:
                             '(font-lock-face nil
                               rear-nonsticky nil))))
 
-(make-local-variable 'rainbow-delimiters-escaped-char-predicate)
-(setq rainbow-delimiters-escaped-char-predicate nil)
+(defvar rainbow-delimiters-escaped-char-predicate nil)
+(make-variable-buffer-local 'rainbow-delimiters-escaped-char-predicate)
 
 (defvar rainbow-delimiters-escaped-char-predicate-list
   '((emacs-lisp-mode . rainbow-delimiters-escaped-char-predicate-emacs-lisp)
