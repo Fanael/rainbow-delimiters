@@ -283,6 +283,11 @@ Nil disables brace highlighting."
 
 Determines depth at which to cycle through faces again.")
 
+(defvar rainbow-delimiters-outermost-only-face-count 0
+  "Number of faces to be used only for N outermost delimiter levels.
+
+This should be smaller than `rainbow-delimiters-max-face-count'.")
+
 ;;; Face utility functions
 
 (defsubst rainbow-delimiters-depth-face (depth)
@@ -291,22 +296,19 @@ Determines depth at which to cycle through faces again.")
 For example: 'rainbow-delimiters-depth-1-face'."
   (intern-soft
    (concat "rainbow-delimiters-depth-"
-          (number-to-string
-           (or
-            ;; Our nesting depth has a face defined for it.
-            (and (< depth rainbow-delimiters-max-face-count)
-                 depth)
-            ;; Deeper than # of defined faces; cycle back through to beginning.
-            ;; Depth 1 face is only applied to the outermost delimiter pair.
-            ;; Cycles infinitely through faces 2-9.
-            (let ((cycled-depth (mod depth rainbow-delimiters-max-face-count)))
-              (if (/= cycled-depth 0)
-                  ;; Return face # that corresponds to current nesting level.
-                  (mod depth rainbow-delimiters-max-face-count)
-                ;; Special case: depth divides evenly into max, correct face # is max.
-                rainbow-delimiters-max-face-count))))
-          "-face")))
-
+           (number-to-string
+            (or
+             ;; Our nesting depth has a face defined for it.
+             (and (<= depth rainbow-delimiters-max-face-count)
+                  depth)
+             ;; Deeper than # of defined faces; cycle back through to
+             ;; `rainbow-delimiters-outermost-only-face-count' + 1.
+             ;; Return face # that corresponds to current nesting level.
+             (+ 1 rainbow-delimiters-outermost-only-face-count
+                (mod (- depth rainbow-delimiters-max-face-count 1)
+                     (- rainbow-delimiters-max-face-count
+                        rainbow-delimiters-outermost-only-face-count)))))
+           "-face")))
 
 ;;; Nesting level
 
