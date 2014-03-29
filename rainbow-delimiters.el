@@ -310,6 +310,53 @@ For example: 'rainbow-delimiters-depth-1-face'."
                         rainbow-delimiters-outermost-only-face-count)))))
            "-face")))
 
+;;; Parse partial sexp cache
+
+;; If the block inside the delimiters is too big (where "too big" is
+;; in some way related to `jit-lock-chunk-size'), `syntax-ppss' will
+;; for some reason return wrong depth. Is it because we're misusing
+;; it? Is it because it's buggy? Nobody knows. But users do notice it,
+;; and have reported it as a bug. Hence this workaround: don't use
+;; `syntax-ppss' at all, use the low-level primitive instead. However,
+;; naively replacing `syntax-ppss' with `parse-partial-sexp' slows
+;; down the delimiter highlighting noticeably in big files. Therefore,
+;; we build a simple cache around it. This brings the speed to around
+;; what it used to be, while fixing the bug. See issue #25.
+
+;; TODO: maybe make the cache a little smarter than just caching the
+;; last call?
+
+(defvar rainbow-delimiters-parse-partial-sexp-cache nil
+  "Cache of the last `parse-partial-sexp' call.
+
+If it's nil, there's nothing in the cache. Otherwise, it's a cons
+cell, where car is the position for which `parse-partial-sexp' was
+called and cdr is the result of the call.")
+(make-variable-buffer-local 'rainbow-delimiters-parse-partial-sexp-cache)
+
+(defun rainbow-delimiters-syntax-ppss-flush-cache (beg _end)
+  "Flush the `parse-partial-sexp' cache starting at position BEG."
+  (when (and rainbow-delimiters-parse-partial-sexp-cache
+             (<= beg (car rainbow-delimiters-parse-partial-sexp-cache)))
+    (setq rainbow-delimiters-parse-partial-sexp-cache nil)))
+
+(defsubst rainbow-delimiters-syntax-ppss (pos)
+  "Parse-Partial-Sexp State at POS, defaulting to point.
+
+The returned value is the same as that of `parse-partial-sexp' from
+`point-min' to POS, except that positions 2 and 6 cannot be relied
+upon.
+
+This is essentialy `syntax-ppss', only specific to rainbow-delimiters
+to work around a bug."
+  (save-excursion
+    (let* ((cache rainbow-delimiters-parse-partial-sexp-cache)
+           (ppss (if (and cache (>= pos (car cache)))
+                     (parse-partial-sexp (car cache) pos nil nil (cdr cache))
+                   (parse-partial-sexp (point-min) pos))))
+      (setq rainbow-delimiters-parse-partial-sexp-cache (cons pos ppss))
+      ppss)))
+
 ;;; Nesting level
 
 (defvar rainbow-delimiters-syntax-table nil
@@ -336,7 +383,7 @@ major-mode. The syntax table is constructed by the function
   "Return # of nested levels of parens, brackets, braces LOC is inside of."
   (let ((depth
          (with-syntax-table rainbow-delimiters-syntax-table
-           (car (syntax-ppss loc)))))
+           (car (rainbow-delimiters-syntax-ppss loc)))))
     (if (>= depth 0)
         depth
       0))) ; ignore negative depths created by unmatched closing parens.
@@ -433,7 +480,7 @@ Returns t if char at loc meets one of the following conditions:
 - Inside a string.
 - Inside a comment.
 - Is an escaped char, e.g. ?\)"
-  (let ((parse-state (syntax-ppss loc)))
+  (let ((parse-state (rainbow-delimiters-syntax-ppss loc)))
     (or
      (nth 3 parse-state)                ; inside string?
      (nth 4 parse-state)                ; inside comment?
@@ -519,8 +566,10 @@ Used by jit-lock for dynamic highlighting."
   nil "" nil ; No modeline lighter - it's already obvious when the mode is on.
   (if (not rainbow-delimiters-mode)
       (progn
+        (remove-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t)
         (jit-lock-unregister 'rainbow-delimiters-propertize-region)
         (rainbow-delimiters-unpropertize-region (point-min) (point-max)))
+    (add-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t t)
     (jit-lock-register 'rainbow-delimiters-propertize-region t)
     ;; Create necessary syntax tables inheriting from current major-mode.
     (set (make-local-variable 'rainbow-delimiters-syntax-table)
