@@ -569,6 +569,8 @@ Used by jit-lock for dynamic highlighting."
         (remove-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t)
         (jit-lock-unregister 'rainbow-delimiters-propertize-region)
         (rainbow-delimiters-unpropertize-region (point-min) (point-max)))
+    ;; Flush the ppss cache now in case there's something left in there.
+    (setq rainbow-delimiters-parse-partial-sexp-cache nil)
     (add-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t t)
     (jit-lock-register 'rainbow-delimiters-propertize-region t)
     ;; Create necessary syntax tables inheriting from current major-mode.
