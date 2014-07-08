@@ -146,9 +146,6 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
-
-
 ;; Note: some of the functions in this file have been inlined for speed.
 ;; Inlining functions can cause problems with debugging. To debug these
 ;; functions more easily, change defsubst -> defun.
