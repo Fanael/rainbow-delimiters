@@ -323,22 +323,34 @@ For example: 'rainbow-delimiters-depth-1-face'."
 ;; we build a simple cache around it. This brings the speed to around
 ;; what it used to be, while fixing the bug. See issue #25.
 
-;; TODO: maybe make the cache a little smarter than just caching the
-;; last call?
-
 (defvar rainbow-delimiters-parse-partial-sexp-cache nil
   "Cache of the last `parse-partial-sexp' call.
 
-If it's nil, there's nothing in the cache. Otherwise, it's a cons
-cell, where car is the position for which `parse-partial-sexp' was
-called and cdr is the result of the call.")
+It's a list of conses, where car is the position for which `parse-partial-sexp'
+was called and cdr is the result of the call. The list is ordered descending by
+car.")
 (make-variable-buffer-local 'rainbow-delimiters-parse-partial-sexp-cache)
+
+(defconst rainbow-delimiters-parse-partial-sexp-cache-max-span 20000)
 
 (defun rainbow-delimiters-syntax-ppss-flush-cache (beg _end)
   "Flush the `parse-partial-sexp' cache starting at position BEG."
-  (when (and rainbow-delimiters-parse-partial-sexp-cache
-             (<= beg (car rainbow-delimiters-parse-partial-sexp-cache)))
-    (setq rainbow-delimiters-parse-partial-sexp-cache nil)))
+  (let ((it rainbow-delimiters-parse-partial-sexp-cache))
+    (while (and it (>= (caar it) beg))
+      (setq it (cdr it)))
+    (setq rainbow-delimiters-parse-partial-sexp-cache it)))
+
+(defsubst rainbow-delimiters-syntax-ppss-run (from to oldstate cache-nearest-after)
+  (while (< from to)
+    (let ((newpos (min to (+ from rainbow-delimiters-parse-partial-sexp-cache-max-span))))
+      (let ((state (parse-partial-sexp from newpos nil nil oldstate)))
+        (if (/= newpos to)
+            (if cache-nearest-after
+                (push (cons newpos state) (cdr cache-nearest-after))
+              (push (cons newpos state) rainbow-delimiters-parse-partial-sexp-cache)))
+        (setq oldstate state
+              from newpos))))
+  oldstate)
 
 (defsubst rainbow-delimiters-syntax-ppss (pos)
   "Parse-Partial-Sexp State at POS, defaulting to point.
@@ -350,12 +362,16 @@ upon.
 This is essentialy `syntax-ppss', only specific to rainbow-delimiters
 to work around a bug."
   (save-excursion
-    (let* ((cache rainbow-delimiters-parse-partial-sexp-cache)
-           (ppss (if (and cache (>= pos (car cache)))
-                     (parse-partial-sexp (car cache) pos nil nil (cdr cache))
-                   (parse-partial-sexp (point-min) pos))))
-      (setq rainbow-delimiters-parse-partial-sexp-cache (cons pos ppss))
-      ppss)))
+    (let ((it rainbow-delimiters-parse-partial-sexp-cache)
+          (prev nil))
+      (while (and it (>= (caar it) pos))
+        (setq prev it)
+        (setq it (cdr it)))
+      (let* ((nearest-after (if (consp prev) prev nil))
+             (nearest-before (if (consp it) (car it) it))
+             (nearest-before-pos (if nearest-before (car nearest-before) (point-min)))
+             (nearest-before-data (if nearest-before (cdr nearest-before) nil)))
+        (rainbow-delimiters-syntax-ppss-run nearest-before-pos pos nearest-before-data nearest-after)))))
 
 ;;; Nesting level
 
@@ -480,7 +496,7 @@ Returns t if char at loc meets one of the following conditions:
 - Inside a string.
 - Inside a comment.
 - Is an escaped char, e.g. ?\)"
-  (let ((parse-state (rainbow-delimiters-syntax-ppss loc)))
+  (let ((parse-state (syntax-ppss loc)))
     (or
      (nth 3 parse-state)                ; inside string?
      (nth 4 parse-state)                ; inside comment?
