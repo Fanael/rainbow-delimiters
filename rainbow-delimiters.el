@@ -343,16 +343,18 @@ The list is ordered descending by car.")
 CACHE-NEAREST-AFTER should be a list of cache entries starting at the first
 entry after TO, or nil if there's no such entry.
 Intermediate `parse-partial-sexp' results are added to the cache."
-  (while (< from to)
-    (let ((newpos (min to (+ from rainbow-delimiters-parse-partial-sexp-cache-max-span))))
-      (let ((state (parse-partial-sexp from newpos nil nil oldstate)))
-        (if (/= newpos to)
-            (if cache-nearest-after
-                (push (cons newpos state) (cdr cache-nearest-after))
-              (push (cons newpos state) rainbow-delimiters-parse-partial-sexp-cache)))
-        (setq oldstate state
-              from newpos))))
-  oldstate)
+  (if (= from to)
+      (parse-partial-sexp from to nil nil oldstate)
+    (while (< from to)
+      (let ((newpos (min to (+ from rainbow-delimiters-parse-partial-sexp-cache-max-span))))
+        (let ((state (parse-partial-sexp from newpos nil nil oldstate)))
+          (if (/= newpos to)
+              (if cache-nearest-after
+                  (push (cons newpos state) (cdr cache-nearest-after))
+                (push (cons newpos state) rainbow-delimiters-parse-partial-sexp-cache)))
+          (setq oldstate state
+                from newpos))))
+    oldstate))
 
 (defsubst rainbow-delimiters-syntax-ppss (pos)
   "Parse-Partial-Sexp State at POS, defaulting to point.
