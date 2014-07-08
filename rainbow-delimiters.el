@@ -604,4 +604,4 @@ Used by jit-lock for dynamic highlighting."
 
 (provide 'rainbow-delimiters)
 
-;;; rainbow-delimiters.el ends here.
+;;; rainbow-delimiters.el ends here
