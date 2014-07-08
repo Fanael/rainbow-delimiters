@@ -503,7 +503,7 @@ Returns t if char at loc meets one of the following conditions:
 - Inside a string.
 - Inside a comment.
 - Is an escaped char, e.g. ?\)"
-  (let ((parse-state (syntax-ppss loc)))
+  (let ((parse-state (rainbow-delimiters-syntax-ppss loc)))
     (or
      (nth 3 parse-state)                ; inside string?
      (nth 4 parse-state)                ; inside comment?
