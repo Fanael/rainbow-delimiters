@@ -581,22 +581,32 @@ Used by jit-lock for dynamic highlighting."
 
 ;;; Minor mode:
 
+(defun rainbow-delimiters-mode-turn-on ()
+  "Set up `rainbow-delimiters-mode'."
+  ;; Flush the ppss cache now in case there's something left in there.
+  (setq rainbow-delimiters-parse-partial-sexp-cache nil)
+  (add-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t t)
+  (add-hook 'change-major-mode-hook 'rainbow-delimiters-mode-turn-off nil t)
+  (jit-lock-register 'rainbow-delimiters-propertize-region t)
+  ;; Create necessary syntax tables inheriting from current major-mode.
+  (set (make-local-variable 'rainbow-delimiters-syntax-table)
+       (rainbow-delimiters-make-syntax-table (syntax-table))))
+
+(defun rainbow-delimiters-mode-turn-off ()
+  "Tear down `rainbow-delimiters-mode'."
+  (kill-local-variable 'rainbow-delimiters-syntax-table)
+  (rainbow-delimiters-unpropertize-region (point-min) (point-max))
+  (jit-lock-unregister 'rainbow-delimiters-propertize-region)
+  (remove-hook 'change-major-mode-hook 'rainbow-delimiters-mode-turn-off t)
+  (remove-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t))
+
 ;;;###autoload
 (define-minor-mode rainbow-delimiters-mode
   "Highlight nested parentheses, brackets, and braces according to their depth."
   nil "" nil ; No modeline lighter - it's already obvious when the mode is on.
-  (if (not rainbow-delimiters-mode)
-      (progn
-        (remove-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t)
-        (jit-lock-unregister 'rainbow-delimiters-propertize-region)
-        (rainbow-delimiters-unpropertize-region (point-min) (point-max)))
-    ;; Flush the ppss cache now in case there's something left in there.
-    (setq rainbow-delimiters-parse-partial-sexp-cache nil)
-    (add-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t t)
-    (jit-lock-register 'rainbow-delimiters-propertize-region t)
-    ;; Create necessary syntax tables inheriting from current major-mode.
-    (set (make-local-variable 'rainbow-delimiters-syntax-table)
-         (rainbow-delimiters-make-syntax-table (syntax-table)))))
+  (if rainbow-delimiters-mode
+      (rainbow-delimiters-mode-turn-on)
+    (rainbow-delimiters-mode-turn-off)))
 
 ;;;###autoload
 (defun rainbow-delimiters-mode-enable ()
