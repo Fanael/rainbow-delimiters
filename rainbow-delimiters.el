@@ -288,9 +288,9 @@ This should be smaller than `rainbow-delimiters-max-face-count'.")
 ;;; Face utility functions
 
 (defsubst rainbow-delimiters-depth-face (depth)
-  "Return face-name for DEPTH as a string 'rainbow-delimiters-depth-DEPTH-face'.
+  "Return face name for DEPTH as a symbol 'rainbow-delimiters-depth-DEPTH-face'.
 
-For example: 'rainbow-delimiters-depth-1-face'."
+For example: `rainbow-delimiters-depth-1-face'."
   (intern-soft
    (concat "rainbow-delimiters-depth-"
            (number-to-string
@@ -324,20 +324,25 @@ For example: 'rainbow-delimiters-depth-1-face'."
   "Cache of the last `parse-partial-sexp' call.
 
 It's a list of conses, where car is the position for which `parse-partial-sexp'
-was called and cdr is the result of the call. The list is ordered descending by
-car.")
+was called and cdr is the result of the call.
+The list is ordered descending by car.")
 (make-variable-buffer-local 'rainbow-delimiters-parse-partial-sexp-cache)
 
 (defconst rainbow-delimiters-parse-partial-sexp-cache-max-span 20000)
 
 (defun rainbow-delimiters-syntax-ppss-flush-cache (beg _end)
-  "Flush the `parse-partial-sexp' cache starting at position BEG."
+  "Flush the `parse-partial-sexp' cache starting from position BEG."
   (let ((it rainbow-delimiters-parse-partial-sexp-cache))
     (while (and it (>= (caar it) beg))
       (setq it (cdr it)))
     (setq rainbow-delimiters-parse-partial-sexp-cache it)))
 
 (defsubst rainbow-delimiters-syntax-ppss-run (from to oldstate cache-nearest-after)
+  "Run `parse-partial-sexp' from FROM to TO starting with state OLDSTATE.
+
+CACHE-NEAREST-AFTER should be a list of cache entries starting at the first
+entry after TO, or nil if there's no such entry.
+Intermediate `parse-partial-sexp' results are added to the cache."
   (while (< from to)
     (let ((newpos (min to (+ from rainbow-delimiters-parse-partial-sexp-cache-max-span))))
       (let ((state (parse-partial-sexp from newpos nil nil oldstate)))
@@ -373,12 +378,13 @@ to work around a bug."
 ;;; Nesting level
 
 (defvar rainbow-delimiters-syntax-table nil
-  "Syntax table (inherited from buffer major-mode) which uses all delimiters.
+  "Syntax table (inherited from `major-mode''s) which uses all delimiters.
 
-When rainbow-delimiters-minor-mode is first activated, it sets this variable and
+When `rainbow-delimiters-mode' is first activated, it sets this variable and
 the other rainbow-delimiters specific syntax tables based on the current
-major-mode. The syntax table is constructed by the function
-'rainbow-delimiters-make-syntax-table'.")
+`major-mode'.
+The syntax table is constructed by the function
+`rainbow-delimiters-make-syntax-table'.")
 
 ;; syntax-table: used with syntax-ppss for determining current depth.
 (defun rainbow-delimiters-make-syntax-table (syntax-table)
@@ -477,6 +483,7 @@ Sets text properties:
     ))
 
 (defun rainbow-delimiters-escaped-char-predicate-emacs-lisp (loc)
+  "Non-nil iff the character at LOC is escaped as per Emacs Lisp rules."
   (or (and (eq (char-before loc) ?\?) ; e.g. ?) - deprecated, but people use it
            (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
                      (eq (char-before (- loc 2)) ?\?))))
@@ -484,6 +491,7 @@ Sets text properties:
            (eq (char-before (1- loc)) ?\?))))
 
 (defun rainbow-delimiters-escaped-char-predicate-lisp (loc)
+  "Non-nil iff the character at LOC is escaped as per some generic Lisp rules."
   (eq (char-before loc) ?\\))
 
 (defsubst rainbow-delimiters-char-ineligible-p (loc)
@@ -592,10 +600,12 @@ Used by jit-lock for dynamic highlighting."
 
 ;;;###autoload
 (defun rainbow-delimiters-mode-enable ()
+  "Enable `rainbow-delimiters-mode'."
   (rainbow-delimiters-mode 1))
 
 ;;;###autoload
 (defun rainbow-delimiters-mode-disable ()
+  "Disable `rainbow-delimiters-mode'."
   (rainbow-delimiters-mode 0))
 
 ;;;###autoload
