@@ -168,7 +168,7 @@ When depth exceeds innermost defined face, colors cycle back through."
   :group 'rainbow-delimiters
   :link '(custom-group-link "rainbow-delimiters")
   :link '(custom-group-link :tag "Toggle Delimiters" "rainbow-delimiters-toggle-delimiter-highlighting")
-  :prefix 'rainbow-delimiters-faces-)
+  :prefix "rainbow-delimiters-")
 
 ;; Choose which delimiters you want to highlight in your preferred language:
 
