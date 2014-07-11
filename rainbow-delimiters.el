@@ -280,10 +280,12 @@ Nil disables brace highlighting."
 
 Determines depth at which to cycle through faces again.")
 
-(defvar rainbow-delimiters-outermost-only-face-count 0
+(defcustom rainbow-delimiters-outermost-only-face-count 0
   "Number of faces to be used only for N outermost delimiter levels.
 
-This should be smaller than `rainbow-delimiters-max-face-count'.")
+This should be smaller than `rainbow-delimiters-max-face-count'."
+  :type 'integer
+  :group 'rainbow-delimiters-faces)
 
 ;;; Face utility functions
 
