@@ -542,6 +542,21 @@ MATCH is nil iff it's a mismatched closing delimiter."
 (defconst rainbow-delimiters-delim-regex "\\(\(\\|\)\\|\\[\\|\\]\\|\{\\|\}\\)"
   "Regex matching all opening and closing delimiters the mode highlights.")
 
+(defconst rainbow-delimiters-opening-delim-info
+  '((?\( . "paren") (?\{ . "brace") (?\[ . "bracket"))
+  "Open delimiter information: list of (DELIMITER . TYPE).
+
+DELIMITER is the opening delimiter.
+TYPE is the delimiter type string for `rainbow-delimiters-apply-color'.")
+
+(defconst rainbow-delimiters-closing-delim-info
+  '((?\) ?\( . "paren") (?\} ?\{ . "brace") (?\] ?\[ . "bracket"))
+  "Closing delimiter information: list of (DELIMITER OPENING . TYPE).
+
+DELIMITER is the closing delimiter.
+OPENING is the corresponding opening delimiter.
+TYPE is the delimiter type string for `rainbow-delimiters-apply-color'.")
+
 ;; main function called by jit-lock:
 (defsubst rainbow-delimiters-propertize-region (start end)
   "Highlight delimiters in region between START and END.
@@ -560,37 +575,27 @@ Used by jit-lock for dynamic highlighting."
             (backward-char) ; re-search-forward places point after delim; go back.
             (let ((ppss (rainbow-delimiters-syntax-ppss (point))))
               (unless (rainbow-delimiters-char-ineligible-p (point) ppss)
-                (let ((delim (char-after (point))))
-                  (cond ((eq ?\( delim)       ; (
-                         (setq depth (1+ depth))
-                         (rainbow-delimiters-apply-color "paren" depth (point) t))
-                        ((eq ?\) delim)       ; )
-                         (rainbow-delimiters-apply-color "paren"
-                                                         depth
-                                                         (point)
-                                                         (= ?\( (char-after (nth 1 ppss))))
-                         (setq depth (or (and (<= depth 0) 0) ; unmatched paren
-                                         (1- depth))))
-                        ((eq ?\[ delim)       ; [
-                         (setq depth (1+ depth))
-                         (rainbow-delimiters-apply-color "bracket" depth (point) t))
-                        ((eq ?\] delim)       ; ]
-                         (rainbow-delimiters-apply-color "bracket"
-                                                         depth
-                                                         (point)
-                                                         (= ?\[ (char-after (nth 1 ppss))))
-                         (setq depth (or (and (<= depth 0) 0) ; unmatched bracket
-                                         (1- depth))))
-                        ((eq ?\{ delim)       ; {
-                         (setq depth (1+ depth))
-                         (rainbow-delimiters-apply-color "brace" depth (point) t))
-                        ((eq ?\} delim)       ; }
-                         (rainbow-delimiters-apply-color "brace"
-                                                         depth
-                                                         (point)
-                                                         (= ?\{ (char-after (nth 1 ppss))))
-                         (setq depth (or (and (<= depth 0) 0) ; unmatched brace
-                                         (1- depth))))))))
+                (let* ((delim (char-after (point)))
+                       (opening-delim-info
+                        (assq delim rainbow-delimiters-opening-delim-info)))
+                  (if opening-delim-info
+                      (progn
+                        (setq depth (1+ depth))
+                        (rainbow-delimiters-apply-color (cdr opening-delim-info)
+                                                        depth
+                                                        (point)
+                                                        t))
+                    ;; Not an opening delimiters, so it's a closing delimiter.
+                    (let ((closing-delim-info
+                           (assq delim rainbow-delimiters-closing-delim-info))
+                          (matching-opening-delim (char-after (nth 1 ppss))))
+                      (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
+                                                      depth
+                                                      (point)
+                                                      (= (nth 1 closing-delim-info)
+                                                         matching-opening-delim))
+                      (setq depth (or (and (<= depth 0) 0) ; unmatched delim
+                                      (1- depth))))))))
             ;; move past delimiter so re-search-forward doesn't pick it up again
             (forward-char)))))))
 
