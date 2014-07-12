@@ -567,47 +567,49 @@ Used by jit-lock for dynamic highlighting."
   (save-excursion
     (with-syntax-table rainbow-delimiters-syntax-table
       (with-silent-modifications
-        (goto-char start)
-        ;; START can be anywhere in buffer; determine the nesting depth at START loc
-        (let ((depth (rainbow-delimiters-depth start)))
-          (while (and (< (point) end)
-                      (re-search-forward rainbow-delimiters-delim-regex end t))
-            (backward-char) ; re-search-forward places point after delim; go back.
-            (let ((ppss (rainbow-delimiters-syntax-ppss (point))))
-              (unless (rainbow-delimiters-char-ineligible-p (point) ppss)
-                (let* ((delim (char-after (point)))
-                       (opening-delim-info
-                        (assq delim rainbow-delimiters-opening-delim-info)))
-                  (if opening-delim-info
-                      (progn
-                        (setq depth (1+ depth))
-                        (rainbow-delimiters-apply-color (cdr opening-delim-info)
+        (let ((inhibit-point-motion-hooks t))
+          (goto-char start)
+          ;; START can be anywhere in buffer; determine the nesting depth at START loc
+          (let ((depth (rainbow-delimiters-depth start)))
+            (while (and (< (point) end)
+                        (re-search-forward rainbow-delimiters-delim-regex end t))
+              (backward-char) ; re-search-forward places point after delim; go back.
+              (let ((ppss (rainbow-delimiters-syntax-ppss (point))))
+                (unless (rainbow-delimiters-char-ineligible-p (point) ppss)
+                  (let* ((delim (char-after (point)))
+                         (opening-delim-info
+                          (assq delim rainbow-delimiters-opening-delim-info)))
+                    (if opening-delim-info
+                        (progn
+                          (setq depth (1+ depth))
+                          (rainbow-delimiters-apply-color (cdr opening-delim-info)
+                                                          depth
+                                                          (point)
+                                                          t))
+                      ;; Not an opening delimiters, so it's a closing delimiter.
+                      (let ((closing-delim-info
+                             (assq delim rainbow-delimiters-closing-delim-info))
+                            (matching-opening-delim (char-after (nth 1 ppss))))
+                        (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
                                                         depth
                                                         (point)
-                                                        t))
-                    ;; Not an opening delimiters, so it's a closing delimiter.
-                    (let ((closing-delim-info
-                           (assq delim rainbow-delimiters-closing-delim-info))
-                          (matching-opening-delim (char-after (nth 1 ppss))))
-                      (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
-                                                      depth
-                                                      (point)
-                                                      (= (nth 1 closing-delim-info)
-                                                         matching-opening-delim))
-                      (setq depth (or (and (<= depth 0) 0) ; unmatched delim
-                                      (1- depth))))))))
-            ;; move past delimiter so re-search-forward doesn't pick it up again
-            (forward-char)))))))
+                                                        (= (nth 1 closing-delim-info)
+                                                           matching-opening-delim))
+                        (setq depth (or (and (<= depth 0) 0) ; unmatched delim
+                                        (1- depth))))))))
+              ;; move past delimiter so re-search-forward doesn't pick it up again
+              (forward-char))))))))
 
 (defun rainbow-delimiters-unpropertize-region (start end)
   "Remove highlighting from delimiters between START and END."
   (save-excursion
     (with-silent-modifications
-      (goto-char start)
-      (while (and (< (point) end)
-                  (re-search-forward rainbow-delimiters-delim-regex end t))
-        ;; re-search-forward places point 1 further than the delim matched:
-        (rainbow-delimiters-unpropertize-delimiter (1- (point)))))))
+      (let ((inhibit-point-motion-hooks t))
+        (goto-char start)
+        (while (and (< (point) end)
+                    (re-search-forward rainbow-delimiters-delim-regex end t))
+          ;; re-search-forward places point 1 further than the delim matched:
+          (rainbow-delimiters-unpropertize-delimiter (1- (point))))))))
 
 
 ;;; Minor mode:
