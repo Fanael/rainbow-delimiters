@@ -486,6 +486,7 @@ Sets text properties:
 
 (defvar rainbow-delimiters-escaped-char-predicate-list
   '((emacs-lisp-mode . rainbow-delimiters-escaped-char-predicate-emacs-lisp)
+    (lisp-interaction-mode . rainbow-delimiters-escaped-char-predicate-emacs-lisp)
     (inferior-emacs-lisp-mode . rainbow-delimiters-escaped-char-predicate-emacs-lisp)
     (lisp-mode . rainbow-delimiters-escaped-char-predicate-lisp)
     (scheme-mode . rainbow-delimiters-escaped-char-predicate-lisp)
