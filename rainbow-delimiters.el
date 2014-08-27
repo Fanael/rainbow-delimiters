@@ -86,49 +86,6 @@
 ;; - The unmatched delimiter face (normally colored red) is:
 ;;   'rainbow-delimiters-unmatched-face'
 
-
-;;; Change Log:
-
-;; 1.0 - Initial release.
-;; 1.1 - Stop tracking each delimiter's depth independently.
-;;       This had lead to confusing results when viewing clojure
-;;       code. Instead, just color based on current nesting inside
-;;       all delimiters combined.
-;;     - Added 'all-delimiters' faces to apply a color scheme to
-;;       all delimiters at once. Other faces inherit from this group.
-;; 1.1.1 - Change color scheme to a lighter, more subtle style.
-;; 1.1.2: (2011-03-25)
-;;  - Add an unmatched-delimiter face and correct problem with
-;;    coloring of text following unmatched closing delims.
-;; 1.2: (2011-03-28)
-;;  - Unify delimiter faces: all delimiter types now use the same depth
-;;    faces, of form 'rainbow-delimiters-depth-#-face'.
-;; 1.2.1: (2011-03-29)
-;;  - Conform to ELPA conventions.
-;; 1.3: (2011-05-24)
-;;  - Add separate color schemes for light and dark background modes.
-;;  - Checkboxes to enable/disable highlighting for each delimiter type.
-;;  - Improvements to Customize interface.
-;;  - Infinite depth support by cycling through defined faces repeatedly.
-;;  - Documentation changes.
-;; 1.3.1 (2011-05-25)
-;;  - Light color theme appears entirely grey on SRGB monitors. Revert to
-;;    old color theme until a nicer light background theme can be added.
-;;  - Correct typo in the installation step for users of dark backgrounds.
-;; 1.3.2 (2011-10-14)
-;;  - Add 'global-rainbow-delimiters-mode'.
-;;  - Respect syntax of current buffer major-mode so delimiters
-;;    highlight correctly in non-lisp languages.
-;; 1.3.3 (2011-11-25)
-;;  - Backwards compatibility with Emacs versions prior to 23.2.
-;;    Defines "with-silent-modifications" if undefined.
-;; 1.3.4 (2012-04-27)
-;;  - Further optimize highlighting speed. Benchmarks show 2x improvement.
-;;  - Color scheme for light backgrounds.
-;;  - Eliminate bottleneck seen in certain large files.
-;;    A large file which revealed this bottleneck now highlights ~40x faster.
-;;  - Correct broken/incorrect highlighting reported in certain languages.
-
 ;;; TODO:
 
 ;; - Add support for independent depth tracking of each delimiter type
