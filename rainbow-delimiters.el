@@ -173,7 +173,7 @@ Nil disables brace highlighting."
   "Face to highlight mismatched closing delimiters in."
   :group 'rainbow-delimiters-faces)
 
-;; Faces for highlighting delimiters by nested level:
+;; Faces for highlighting delimiters by nesting level:
 (defface rainbow-delimiters-depth-1-face
   '((((background light)) (:foreground "#707183"))
     (((background dark)) (:foreground "grey55")))
@@ -230,7 +230,7 @@ Nil disables brace highlighting."
   :group 'rainbow-delimiters-faces)
 
 ;;; Faces 10+:
-;; NOTE: Currently unused. Additional faces for depths 9+ can be added on request.
+;; NOTE: Currently unused. Additional faces for depths 10+ can be added on request.
 
 (defconst rainbow-delimiters-max-face-count 9
   "Number of faces defined for highlighting delimiter levels.
@@ -347,7 +347,8 @@ the other rainbow-delimiters specific syntax tables based on the current
 The syntax table is constructed by the function
 `rainbow-delimiters-make-syntax-table'.")
 
-;; syntax-table: used with syntax-ppss for determining current depth.
+;; Syntax table: used with `rainbow-delimiters-syntax-ppss' for determining
+;; current depth.
 (defun rainbow-delimiters-make-syntax-table (syntax-table)
   "Inherit SYNTAX-TABLE and add delimiters intended to be highlighted by mode."
   (let ((table (copy-syntax-table syntax-table)))
@@ -364,8 +365,7 @@ The syntax table is constructed by the function
   (let ((depth (car (rainbow-delimiters-syntax-ppss loc))))
     (if (>= depth 0)
         depth
-      0))) ; ignore negative depths created by unmatched closing parens.
-
+      0))) ; Ignore negative depths created by unmatched closing parens.
 
 ;;; Text properties
 
@@ -423,7 +423,6 @@ Returns t if char at loc meets one of the following conditions:
    (and rainbow-delimiters-escaped-char-predicate
         (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
-
 (defsubst rainbow-delimiters-apply-color (delim depth loc match)
   "Apply color for DEPTH to DELIM at LOC following user settings.
 
@@ -439,10 +438,8 @@ MATCH is nil iff it's a mismatched closing delimiter."
                                             depth
                                             match)))
 
-
 ;;; Font-Lock functionality
 
-;; Used to skip delimiter-by-delimiter `rainbow-delimiters-propertize'.
 (defconst rainbow-delimiters-delim-regex "\\(\(\\|\)\\|\\[\\|\\]\\|\{\\|\}\\)"
   "Regex matching all opening and closing delimiters the mode highlights.")
 
@@ -461,7 +458,7 @@ DELIMITER is the closing delimiter.
 OPENING is the corresponding opening delimiter.
 TYPE is the delimiter type string for `rainbow-delimiters-apply-color'.")
 
-;; main function called by font-lock:
+;; Main function called by font-lock.
 (defun rainbow-delimiters-propertize (end)
   "Highlight delimiters in region between point and END.
 
@@ -499,7 +496,8 @@ Used by font-lock for dynamic highlighting."
                                                          matching-opening-delim))
                       (setq depth (or (and (<= depth 0) 0) ; unmatched delim
                                       (1- depth))))))))
-            ;; move past delimiter so re-search-forward doesn't pick it up again
+            ;; Move past delimiter so re-search-forward doesn't pick it up
+            ;; again.
             (forward-char))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
@@ -509,7 +507,8 @@ Used by font-lock for dynamic highlighting."
 
 ;; NB: no face defined here because we apply the faces ourselves instead of
 ;; leaving that to font-lock.
-(defconst rainbow-delimiters-keywords '(rainbow-delimiters-propertize))
+(defconst rainbow-delimiters-keywords
+  '(rainbow-delimiters-propertize))
 
 (defun rainbow-delimiters-mode-turn-on ()
   "Set up `rainbow-delimiters-mode'."
@@ -556,5 +555,4 @@ Used by font-lock for dynamic highlighting."
   rainbow-delimiters-mode rainbow-delimiters-mode-enable)
 
 (provide 'rainbow-delimiters)
-
 ;;; rainbow-delimiters.el ends here
