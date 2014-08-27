@@ -138,12 +138,6 @@
 ;; - Set up proper example defthemes for rainbow-delimiters faces.
 ;; - Intelligent support for other languages: Ruby, LaTeX tags, et al.
 
-;;; Issues:
-
-;; - Rainbow-delimiters mode does not appear to change the color of
-;;   delimiters when Org-mode is also enabled.
-
-
 ;;; Code:
 
 ;; Note: some of the functions in this file have been inlined for speed.
@@ -423,11 +417,7 @@ The syntax table is constructed by the function
 
 LOC is the location of the character to add text properties to.
 DEPTH is the nested depth at LOC, which determines the face to use.
-MATCH is nil iff it's a mismatched closing delimiter.
-
-Sets text properties:
-`font-lock-face' to the appropriate delimiter face.
-`rear-nonsticky' to prevent color from bleeding into subsequent characters typed by the user."
+MATCH is nil iff it's a mismatched closing delimiter."
   (let ((delim-face (cond
                      ((<= depth 0)
                       'rainbow-delimiters-unmatched-face)
@@ -435,10 +425,7 @@ Sets text properties:
                       'rainbow-delimiters-mismatched-face)
                      (t
                       (rainbow-delimiters-depth-face depth)))))
-    ;; (when (eq depth -1) (message "Unmatched delimiter at char %s." loc))
-    (add-text-properties loc (1+ loc)
-                         `(font-lock-face ,delim-face
-                           rear-nonsticky t))))
+    (font-lock-prepend-text-property loc (1+ loc) 'face delim-face)))
 
 (defvar rainbow-delimiters-escaped-char-predicate nil)
 (make-variable-buffer-local 'rainbow-delimiters-escaped-char-predicate)
