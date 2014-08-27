@@ -507,7 +507,7 @@ Used by font-lock for dynamic highlighting."
 
 ;; NB: no face defined here because we apply the faces ourselves instead of
 ;; leaving that to font-lock.
-(defconst rainbow-delimiters-keywords
+(defconst rainbow-delimiters-font-lock-keywords
   '(rainbow-delimiters-propertize))
 
 (defun rainbow-delimiters-mode-turn-on ()
@@ -516,7 +516,7 @@ Used by font-lock for dynamic highlighting."
   (setq rainbow-delimiters-parse-partial-sexp-cache nil)
   (add-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t t)
   (add-hook 'change-major-mode-hook 'rainbow-delimiters-mode-turn-off nil t)
-  (font-lock-add-keywords nil rainbow-delimiters-keywords 'append)
+  (font-lock-add-keywords nil rainbow-delimiters-font-lock-keywords 'append)
   (set (make-local-variable 'jit-lock-contextually) t)
   ;; Create necessary syntax tables inheriting from current major-mode.
   (set (make-local-variable 'rainbow-delimiters-syntax-table)
@@ -525,7 +525,7 @@ Used by font-lock for dynamic highlighting."
 (defun rainbow-delimiters-mode-turn-off ()
   "Tear down `rainbow-delimiters-mode'."
   (kill-local-variable 'rainbow-delimiters-syntax-table)
-  (font-lock-remove-keywords nil rainbow-delimiters-keywords)
+  (font-lock-remove-keywords nil rainbow-delimiters-font-lock-keywords)
   (remove-hook 'change-major-mode-hook 'rainbow-delimiters-mode-turn-off t)
   (remove-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t))
 
