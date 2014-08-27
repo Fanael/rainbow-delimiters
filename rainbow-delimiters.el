@@ -472,33 +472,30 @@ Used by font-lock for dynamic highlighting."
         (let ((depth (rainbow-delimiters-depth (point))))
           (while (and (< (point) end)
                       (re-search-forward rainbow-delimiters-delim-regex end t))
-            (backward-char) ; re-search-forward places point after delim; go back.
-            (let ((ppss (rainbow-delimiters-syntax-ppss (point))))
-              (unless (rainbow-delimiters-char-ineligible-p (point) ppss)
-                (let* ((delim (char-after (point)))
-                       (opening-delim-info
-                        (assq delim rainbow-delimiters-opening-delim-info)))
-                  (if opening-delim-info
-                      (progn
-                        (setq depth (1+ depth))
-                        (rainbow-delimiters-apply-color (cdr opening-delim-info)
+            (let ((delim-pos (match-beginning 0)))
+              (let ((ppss (rainbow-delimiters-syntax-ppss delim-pos)))
+                (unless (rainbow-delimiters-char-ineligible-p delim-pos ppss)
+                  (let* ((delim (char-after delim-pos))
+                         (opening-delim-info
+                          (assq delim rainbow-delimiters-opening-delim-info)))
+                    (if opening-delim-info
+                        (progn
+                          (setq depth (1+ depth))
+                          (rainbow-delimiters-apply-color (cdr opening-delim-info)
+                                                          depth
+                                                          delim-pos
+                                                          t))
+                      ;; Not an opening delimiters, so it's a closing delimiter.
+                      (let ((closing-delim-info
+                             (assq delim rainbow-delimiters-closing-delim-info))
+                            (matching-opening-delim (char-after (nth 1 ppss))))
+                        (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
                                                         depth
-                                                        (point)
-                                                        t))
-                    ;; Not an opening delimiters, so it's a closing delimiter.
-                    (let ((closing-delim-info
-                           (assq delim rainbow-delimiters-closing-delim-info))
-                          (matching-opening-delim (char-after (nth 1 ppss))))
-                      (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
-                                                      depth
-                                                      (point)
-                                                      (= (nth 1 closing-delim-info)
-                                                         matching-opening-delim))
-                      (setq depth (or (and (<= depth 0) 0) ; unmatched delim
-                                      (1- depth))))))))
-            ;; Move past delimiter so re-search-forward doesn't pick it up
-            ;; again.
-            (forward-char))))))
+                                                        delim-pos
+                                                        (= (nth 1 closing-delim-info)
+                                                           matching-opening-delim))
+                        (setq depth (or (and (<= depth 0) 0) ; unmatched delim
+                                        (1- depth))))))))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
