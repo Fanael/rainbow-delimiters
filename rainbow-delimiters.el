@@ -484,7 +484,7 @@ Used by font-lock for dynamic highlighting."
                                                         depth
                                                         delim-pos
                                                         t))
-                    ;; Not an opening delimiters, so it's a closing delimiter.
+                    ;; Not an opening delimiter, so it's a closing delimiter.
                     (let ((closing-delim-info
                            (assq delim rainbow-delimiters-closing-delim-info))
                           (matching-opening-delim (char-after (nth 1 ppss))))
