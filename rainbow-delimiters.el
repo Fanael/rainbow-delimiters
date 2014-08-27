@@ -418,40 +418,6 @@ The syntax table is constructed by the function
 
 ;;; Text properties
 
-;; Backwards compatibility: Emacs < v23.2 lack macro 'with-silent-modifications'.
-(eval-and-compile
-  (unless (fboundp 'with-silent-modifications)
-    (defmacro with-silent-modifications (&rest body)
-      "Defined by rainbow-delimiters.el for backwards compatibility with Emacs < 23.2.
- Execute BODY, pretending it does not modify the buffer.
-If BODY performs real modifications to the buffer's text, other
-than cosmetic ones, undo data may become corrupted.
-
-This macro will run BODY normally, but doesn't count its buffer
-modifications as being buffer modifications.  This affects things
-like buffer-modified-p, checking whether the file is locked by
-someone else, running buffer modification hooks, and other things
-of that nature.
-
-Typically used around modifications of text-properties which do
-not really affect the buffer's content."
-      (declare (debug t) (indent 0))
-      (let ((modified (make-symbol "modified")))
-        `(let* ((,modified (buffer-modified-p))
-                (buffer-undo-list t)
-                (inhibit-read-only t)
-                (inhibit-modification-hooks t)
-                deactivate-mark
-                ;; Avoid setting and removing file locks and checking
-                ;; buffer's uptodate-ness w.r.t the underlying file.
-                buffer-file-name
-                buffer-file-truename)
-           (unwind-protect
-               (progn
-                 ,@body)
-             (unless ,modified
-               (restore-buffer-modified-p nil))))))))
-
 (defsubst rainbow-delimiters-propertize-delimiter (loc depth match)
   "Highlight a single delimiter at LOC according to DEPTH.
 
@@ -473,13 +439,6 @@ Sets text properties:
     (add-text-properties loc (1+ loc)
                          `(font-lock-face ,delim-face
                            rear-nonsticky t))))
-
-
-(defsubst rainbow-delimiters-unpropertize-delimiter (loc)
-  "Remove text properties set by rainbow-delimiters mode from char at LOC."
-  (remove-text-properties loc (1+ loc)
-                          '(font-lock-face nil
-                            rear-nonsticky nil)))
 
 (defvar rainbow-delimiters-escaped-char-predicate nil)
 (make-variable-buffer-local 'rainbow-delimiters-escaped-char-predicate)
@@ -537,9 +496,9 @@ MATCH is nil iff it's a mismatched closing delimiter."
                                             match)))
 
 
-;;; JIT-Lock functionality
+;;; Font-Lock functionality
 
-;; Used to skip delimiter-by-delimiter `rainbow-delimiters-propertize-region'.
+;; Used to skip delimiter-by-delimiter `rainbow-delimiters-propertize'.
 (defconst rainbow-delimiters-delim-regex "\\(\(\\|\)\\|\\[\\|\\]\\|\{\\|\}\\)"
   "Regex matching all opening and closing delimiters the mode highlights.")
 
@@ -558,62 +517,55 @@ DELIMITER is the closing delimiter.
 OPENING is the corresponding opening delimiter.
 TYPE is the delimiter type string for `rainbow-delimiters-apply-color'.")
 
-;; main function called by jit-lock:
-(defsubst rainbow-delimiters-propertize-region (start end)
-  "Highlight delimiters in region between START and END.
+;; main function called by font-lock:
+(defun rainbow-delimiters-propertize (end)
+  "Highlight delimiters in region between point and END.
 
-Used by jit-lock for dynamic highlighting."
+Used by font-lock for dynamic highlighting."
   (setq rainbow-delimiters-escaped-char-predicate
         (cdr (assoc major-mode rainbow-delimiters-escaped-char-predicate-list)))
   (save-excursion
     (with-syntax-table rainbow-delimiters-syntax-table
-      (with-silent-modifications
-        (let ((inhibit-point-motion-hooks t))
-          (goto-char start)
-          ;; START can be anywhere in buffer; determine the nesting depth at START loc
-          (let ((depth (rainbow-delimiters-depth start)))
-            (while (and (< (point) end)
-                        (re-search-forward rainbow-delimiters-delim-regex end t))
-              (backward-char) ; re-search-forward places point after delim; go back.
-              (let ((ppss (rainbow-delimiters-syntax-ppss (point))))
-                (unless (rainbow-delimiters-char-ineligible-p (point) ppss)
-                  (let* ((delim (char-after (point)))
-                         (opening-delim-info
-                          (assq delim rainbow-delimiters-opening-delim-info)))
-                    (if opening-delim-info
-                        (progn
-                          (setq depth (1+ depth))
-                          (rainbow-delimiters-apply-color (cdr opening-delim-info)
-                                                          depth
-                                                          (point)
-                                                          t))
-                      ;; Not an opening delimiters, so it's a closing delimiter.
-                      (let ((closing-delim-info
-                             (assq delim rainbow-delimiters-closing-delim-info))
-                            (matching-opening-delim (char-after (nth 1 ppss))))
-                        (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
+      (let ((inhibit-point-motion-hooks t))
+        ;; Point can be anywhere in buffer; determine the nesting depth at point.
+        (let ((depth (rainbow-delimiters-depth (point))))
+          (while (and (< (point) end)
+                      (re-search-forward rainbow-delimiters-delim-regex end t))
+            (backward-char) ; re-search-forward places point after delim; go back.
+            (let ((ppss (rainbow-delimiters-syntax-ppss (point))))
+              (unless (rainbow-delimiters-char-ineligible-p (point) ppss)
+                (let* ((delim (char-after (point)))
+                       (opening-delim-info
+                        (assq delim rainbow-delimiters-opening-delim-info)))
+                  (if opening-delim-info
+                      (progn
+                        (setq depth (1+ depth))
+                        (rainbow-delimiters-apply-color (cdr opening-delim-info)
                                                         depth
                                                         (point)
-                                                        (= (nth 1 closing-delim-info)
-                                                           matching-opening-delim))
-                        (setq depth (or (and (<= depth 0) 0) ; unmatched delim
-                                        (1- depth))))))))
-              ;; move past delimiter so re-search-forward doesn't pick it up again
-              (forward-char))))))))
-
-(defun rainbow-delimiters-unpropertize-region (start end)
-  "Remove highlighting from delimiters between START and END."
-  (save-excursion
-    (with-silent-modifications
-      (let ((inhibit-point-motion-hooks t))
-        (goto-char start)
-        (while (and (< (point) end)
-                    (re-search-forward rainbow-delimiters-delim-regex end t))
-          ;; re-search-forward places point 1 further than the delim matched:
-          (rainbow-delimiters-unpropertize-delimiter (1- (point))))))))
-
+                                                        t))
+                    ;; Not an opening delimiters, so it's a closing delimiter.
+                    (let ((closing-delim-info
+                           (assq delim rainbow-delimiters-closing-delim-info))
+                          (matching-opening-delim (char-after (nth 1 ppss))))
+                      (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
+                                                      depth
+                                                      (point)
+                                                      (= (nth 1 closing-delim-info)
+                                                         matching-opening-delim))
+                      (setq depth (or (and (<= depth 0) 0) ; unmatched delim
+                                      (1- depth))))))))
+            ;; move past delimiter so re-search-forward doesn't pick it up again
+            (forward-char))))))
+  ;; We already fontified the delimiters, tell font-lock there's nothing more
+  ;; to do.
+  nil)
 
 ;;; Minor mode:
+
+;; NB: no face defined here because we apply the faces ourselves instead of
+;; leaving that to font-lock.
+(defconst rainbow-delimiters-keywords '(rainbow-delimiters-propertize))
 
 (defun rainbow-delimiters-mode-turn-on ()
   "Set up `rainbow-delimiters-mode'."
@@ -621,7 +573,8 @@ Used by jit-lock for dynamic highlighting."
   (setq rainbow-delimiters-parse-partial-sexp-cache nil)
   (add-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t t)
   (add-hook 'change-major-mode-hook 'rainbow-delimiters-mode-turn-off nil t)
-  (jit-lock-register 'rainbow-delimiters-propertize-region t)
+  (font-lock-add-keywords nil rainbow-delimiters-keywords 'append)
+  (set (make-local-variable 'jit-lock-contextually) t)
   ;; Create necessary syntax tables inheriting from current major-mode.
   (set (make-local-variable 'rainbow-delimiters-syntax-table)
        (rainbow-delimiters-make-syntax-table (syntax-table))))
@@ -629,8 +582,7 @@ Used by jit-lock for dynamic highlighting."
 (defun rainbow-delimiters-mode-turn-off ()
   "Tear down `rainbow-delimiters-mode'."
   (kill-local-variable 'rainbow-delimiters-syntax-table)
-  (rainbow-delimiters-unpropertize-region (point-min) (point-max))
-  (jit-lock-unregister 'rainbow-delimiters-propertize-region)
+  (font-lock-remove-keywords nil rainbow-delimiters-keywords)
   (remove-hook 'change-major-mode-hook 'rainbow-delimiters-mode-turn-off t)
   (remove-hook 'before-change-functions 'rainbow-delimiters-syntax-ppss-flush-cache t))
 
@@ -640,7 +592,10 @@ Used by jit-lock for dynamic highlighting."
   nil "" nil ; No modeline lighter - it's already obvious when the mode is on.
   (if rainbow-delimiters-mode
       (rainbow-delimiters-mode-turn-on)
-    (rainbow-delimiters-mode-turn-off)))
+    (rainbow-delimiters-mode-turn-off))
+  (if (fboundp 'font-lock-flush)
+      (font-lock-flush)
+    (font-lock-fontify-buffer)))
 
 ;;;###autoload
 (defun rainbow-delimiters-mode-enable ()
