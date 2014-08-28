@@ -532,9 +532,10 @@ Used by font-lock for dynamic highlighting."
   (if rainbow-delimiters-mode
       (rainbow-delimiters-mode-turn-on)
     (rainbow-delimiters-mode-turn-off))
-  (if (fboundp 'font-lock-flush)
-      (font-lock-flush)
-    (font-lock-fontify-buffer)))
+  (when font-lock-mode
+    (if (fboundp 'font-lock-flush)
+        (font-lock-flush)
+      (font-lock-fontify-buffer))))
 
 ;;;###autoload
 (defun rainbow-delimiters-mode-enable ()
