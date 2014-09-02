@@ -362,12 +362,18 @@ The syntax table is constructed by the function
 (defun rainbow-delimiters-make-syntax-table (syntax-table)
   "Inherit SYNTAX-TABLE and add delimiters intended to be highlighted by mode."
   (let ((table (copy-syntax-table syntax-table)))
-    (modify-syntax-entry ?\( "()  " table)
-    (modify-syntax-entry ?\) ")(  " table)
-    (modify-syntax-entry ?\[ "(]" table)
-    (modify-syntax-entry ?\] ")[" table)
-    (modify-syntax-entry ?\{ "(}" table)
-    (modify-syntax-entry ?\} "){" table)
+    (when (/= ?\( (char-syntax ?\())
+      (modify-syntax-entry ?\( "()" table))
+    (when (/= ?\( (char-syntax ?\[))
+      (modify-syntax-entry ?\[ "(]" table))
+    (when (/= ?\( (char-syntax ?\{))
+      (modify-syntax-entry ?\{ "(}" table))
+    (when (/= ?\) (char-syntax ?\)))
+      (modify-syntax-entry ?\) ")(" table))
+    (when (/= ?\) (char-syntax ?\]))
+      (modify-syntax-entry ?\) ")[" table))
+    (when (/= ?\) (char-syntax ?\}))
+      (modify-syntax-entry ?\) "){" table))
     table))
 
 (defsubst rainbow-delimiters-depth (loc)
@@ -430,6 +436,10 @@ Returns t if char at loc meets one of the following conditions:
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
+   (save-excursion             ; starting a comment?
+     (goto-char loc)
+     (let ((inhibit-changing-match-data t))
+       (looking-at comment-start-skip)))
    (and rainbow-delimiters-escaped-char-predicate
         (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
