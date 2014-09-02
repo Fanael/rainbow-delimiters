@@ -362,6 +362,10 @@ The syntax table is constructed by the function
 (defun rainbow-delimiters-make-syntax-table (syntax-table)
   "Inherit SYNTAX-TABLE and add delimiters intended to be highlighted by mode."
   (let ((table (copy-syntax-table syntax-table)))
+    ;; Modify the entries only if the characters are not recognized as
+    ;; delimiters. This ensures that if the characters can be a part of
+    ;; multicharacter comment delimiter (e.g. {- -} in Haskell), we don't
+    ;; suddenly stop recognizing them as comments.
     (when (/= ?\( (char-syntax ?\())
       (modify-syntax-entry ?\( "()" table))
     (when (/= ?\( (char-syntax ?\[))
