@@ -380,9 +380,9 @@ The syntax table is constructed by the function
       (modify-syntax-entry ?\) "){" table))
     table))
 
-(defsubst rainbow-delimiters-depth (loc)
-  "Return # of nested levels of parens, brackets, braces LOC is inside of."
-  (let ((depth (car (rainbow-delimiters-syntax-ppss loc))))
+(defsubst rainbow-delimiters-depth (ppss)
+  "Return # of nested levels of delimiters at parse state PPSS."
+  (let ((depth (car ppss)))
     (if (>= depth 0)
         depth
       0))) ; Ignore negative depths created by unmatched closing parens.
@@ -492,33 +492,37 @@ Used by font-lock for dynamic highlighting."
   (with-syntax-table rainbow-delimiters-syntax-table
     (let ((inhibit-point-motion-hooks t))
       ;; Point can be anywhere in buffer; determine the nesting depth at point.
-      (let ((depth (rainbow-delimiters-depth (point))))
+      (let* ((last-ppss-pos (point))
+             (ppss (rainbow-delimiters-syntax-ppss last-ppss-pos))
+             (depth (rainbow-delimiters-depth ppss)))
         (while (and (< (point) end)
                     (re-search-forward rainbow-delimiters-delim-regex end t))
           (let ((delim-pos (match-beginning 0)))
-            (let ((ppss (rainbow-delimiters-syntax-ppss delim-pos)))
-              (unless (rainbow-delimiters-char-ineligible-p delim-pos ppss)
-                (let* ((delim (char-after delim-pos))
-                       (opening-delim-info
-                        (assq delim rainbow-delimiters-opening-delim-info)))
-                  (if opening-delim-info
-                      (progn
-                        (setq depth (1+ depth))
-                        (rainbow-delimiters-apply-color (cdr opening-delim-info)
-                                                        depth
-                                                        delim-pos
-                                                        t))
-                    ;; Not an opening delimiter, so it's a closing delimiter.
-                    (let ((closing-delim-info
-                           (assq delim rainbow-delimiters-closing-delim-info))
-                          (matching-opening-delim (char-after (nth 1 ppss))))
-                      (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
+            (setq ppss (save-excursion
+                         (parse-partial-sexp last-ppss-pos delim-pos nil nil ppss)))
+            (setq last-ppss-pos delim-pos)
+            (unless (rainbow-delimiters-char-ineligible-p delim-pos ppss)
+              (let* ((delim (char-after delim-pos))
+                     (opening-delim-info
+                      (assq delim rainbow-delimiters-opening-delim-info)))
+                (if opening-delim-info
+                    (progn
+                      (setq depth (1+ depth))
+                      (rainbow-delimiters-apply-color (cdr opening-delim-info)
                                                       depth
                                                       delim-pos
-                                                      (= (nth 1 closing-delim-info)
-                                                         matching-opening-delim))
-                      (setq depth (or (and (<= depth 0) 0) ; unmatched delim
-                                      (1- depth)))))))))))))
+                                                      t))
+                  ;; Not an opening delimiter, so it's a closing delimiter.
+                  (let ((closing-delim-info
+                         (assq delim rainbow-delimiters-closing-delim-info))
+                        (matching-opening-delim (char-after (nth 1 ppss))))
+                    (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
+                                                    depth
+                                                    delim-pos
+                                                    (= (nth 1 closing-delim-info)
+                                                       matching-opening-delim))
+                    (setq depth (or (and (<= depth 0) 0) ; unmatched delim
+                                    (1- depth))))))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
