@@ -97,11 +97,6 @@
 
 ;;; Code:
 
-;; Note: some of the functions in this file have been inlined for speed.
-;; Inlining functions can cause problems with debugging. To debug these
-;; functions more easily, change defsubst -> defun.
-;; http://www.gnu.org/s/emacs/manual/html_node/elisp/Compilation-Tips.html
-
 ;;; Customize interface:
 
 (defgroup rainbow-delimiters nil
@@ -256,7 +251,7 @@ This should be smaller than `rainbow-delimiters-max-face-count'."
 
 ;;; Face utility functions
 
-(defsubst rainbow-delimiters-depth-face (depth)
+(defun rainbow-delimiters-depth-face (depth)
   "Return face name for DEPTH as a symbol 'rainbow-delimiters-depth-DEPTH-face'.
 
 For example: `rainbow-delimiters-depth-1-face'."
@@ -306,7 +301,7 @@ The list is ordered descending by car.")
       (setq it (cdr it)))
     (setq rainbow-delimiters-parse-partial-sexp-cache it)))
 
-(defsubst rainbow-delimiters-syntax-ppss-run (from to oldstate cache-nearest-after)
+(defun rainbow-delimiters-syntax-ppss-run (from to oldstate cache-nearest-after)
   "Run `parse-partial-sexp' from FROM to TO starting with state OLDSTATE.
 
 CACHE-NEAREST-AFTER should be a list of cache entries starting at the first
@@ -325,7 +320,7 @@ Intermediate `parse-partial-sexp' results are added to the cache."
                 from newpos))))
     oldstate))
 
-(defsubst rainbow-delimiters-syntax-ppss (pos)
+(defun rainbow-delimiters-syntax-ppss (pos)
   "Parse-Partial-Sexp State at POS, defaulting to point.
 
 The returned value is the same as that of `parse-partial-sexp' from
@@ -380,7 +375,7 @@ The syntax table is constructed by the function
       (modify-syntax-entry ?\) "){" table))
     table))
 
-(defsubst rainbow-delimiters-depth (ppss)
+(defun rainbow-delimiters-depth (ppss)
   "Return # of nested levels of delimiters at parse state PPSS."
   (let ((depth (car ppss)))
     (if (>= depth 0)
@@ -389,7 +384,7 @@ The syntax table is constructed by the function
 
 ;;; Text properties
 
-(defsubst rainbow-delimiters-propertize-delimiter (loc depth match)
+(defun rainbow-delimiters-propertize-delimiter (loc depth match)
   "Highlight a single delimiter at LOC according to DEPTH.
 
 LOC is the location of the character to add text properties to.
@@ -429,7 +424,7 @@ MATCH is nil iff it's a mismatched closing delimiter."
   "Non-nil iff the character at LOC is escaped as per some generic Lisp rules."
   (eq (char-before loc) ?\\))
 
-(defsubst rainbow-delimiters-char-ineligible-p (loc ppss)
+(defun rainbow-delimiters-char-ineligible-p (loc ppss)
   "Return t if char at LOC should be skipped, e.g. if inside a comment.
 PPSS should be the `parse-partial-sexp' state at LOC.
 
@@ -447,7 +442,7 @@ Returns t if char at loc meets one of the following conditions:
    (and rainbow-delimiters-escaped-char-predicate
         (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
-(defsubst rainbow-delimiters-apply-color (delim depth loc match)
+(defun rainbow-delimiters-apply-color (delim depth loc match)
   "Apply color for DEPTH to DELIM at LOC following user settings.
 
 DELIM is a string specifying delimiter type.
