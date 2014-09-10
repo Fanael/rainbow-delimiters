@@ -436,21 +436,22 @@ Returns t if char at loc meets one of the following conditions:
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
-   (save-excursion             ; starting a comment?
-     (goto-char loc)
-     (and
-      ;; Fast path: if this test fails, it's not a comment, and we avoid a
-      ;; costly `comment-search-forward' call.
-      (let ((inhibit-changing-match-data t))
-        (looking-at comment-start-skip))
-      ;; Some major modes set `comment-start-skip' to not exactly what we
-      ;; expect, catching more than actual comments. Use
-      ;; `comment-search-forward' to see if it's really a comment.
-      ;; NOTE: is lookahead of five characters enough for all languages? I hope
-      ;; there's no language with 6-character comment delimiters.
-      (save-match-data
-        (let ((comment-start-pos (comment-search-forward (min (+ 5 loc) (point-max)) t)))
-          (and comment-start-pos (= loc comment-start-pos))))))
+   (and comment-start-skip     ; starting a comment?
+        (save-excursion
+          (goto-char loc)
+          (and
+           ;; Fast path: if this test fails, it's not a comment, and we avoid a
+           ;; costly `comment-search-forward' call.
+           (let ((inhibit-changing-match-data t))
+             (looking-at comment-start-skip))
+           ;; Some major modes set `comment-start-skip' to not exactly what we
+           ;; expect, catching more than actual comments. Use
+           ;; `comment-search-forward' to see if it's really a comment.
+           ;; NOTE: is lookahead of five characters enough for all languages? I
+           ;; hope there's no language with 6-character comment delimiters.
+           (save-match-data
+             (let ((comment-start-pos (comment-search-forward (min (+ 5 loc) (point-max)) t)))
+               (and comment-start-pos (= loc comment-start-pos)))))))
    (and rainbow-delimiters-escaped-char-predicate
         (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
