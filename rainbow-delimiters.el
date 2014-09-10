@@ -259,17 +259,16 @@ For example: `rainbow-delimiters-depth-1-face'."
   (intern-soft
    (concat "rainbow-delimiters-depth-"
            (number-to-string
-            (or
-             ;; Our nesting depth has a face defined for it.
-             (and (<= depth rainbow-delimiters-max-face-count)
-                  depth)
-             ;; Deeper than # of defined faces; cycle back through to
-             ;; `rainbow-delimiters-outermost-only-face-count' + 1.
-             ;; Return face # that corresponds to current nesting level.
-             (+ 1 rainbow-delimiters-outermost-only-face-count
-                (mod (- depth rainbow-delimiters-max-face-count 1)
-                     (- rainbow-delimiters-max-face-count
-                        rainbow-delimiters-outermost-only-face-count)))))
+            (if (<= depth rainbow-delimiters-max-face-count)
+                ;; Our nesting depth has a face defined for it.
+                depth
+              ;; Deeper than # of defined faces; cycle back through to
+              ;; `rainbow-delimiters-outermost-only-face-count' + 1.
+              ;; Return face # that corresponds to current nesting level.
+              (+ 1 rainbow-delimiters-outermost-only-face-count
+                 (mod (- depth rainbow-delimiters-max-face-count 1)
+                      (- rainbow-delimiters-max-face-count
+                         rainbow-delimiters-outermost-only-face-count)))))
            "-face")))
 
 ;;; Parse partial sexp cache
@@ -436,24 +435,24 @@ Returns t if char at loc meets one of the following conditions:
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
-   (and comment-start-skip     ; starting a comment?
-        (save-excursion
-          (goto-char loc)
-          (and
-           ;; Fast path: if this test fails, it's not a comment, and we avoid a
-           ;; costly `comment-search-forward' call.
-           (let ((inhibit-changing-match-data t))
-             (looking-at comment-start-skip))
-           ;; Some major modes set `comment-start-skip' to not exactly what we
-           ;; expect, catching more than actual comments. Use
-           ;; `comment-search-forward' to see if it's really a comment.
-           ;; NOTE: is lookahead of five characters enough for all languages? I
-           ;; hope there's no language with 6-character comment delimiters.
-           (save-match-data
-             (let ((comment-start-pos (comment-search-forward (min (+ 5 loc) (point-max)) t)))
-               (and comment-start-pos (= loc comment-start-pos)))))))
-   (and rainbow-delimiters-escaped-char-predicate
-        (funcall rainbow-delimiters-escaped-char-predicate loc))))
+   (when comment-start-skip    ; starting a comment?
+     (save-excursion
+       (goto-char loc)
+       ;; Fast path: if this test fails, it's not a comment, and we avoid a
+       ;; costly `comment-search-forward' call.
+       (when (let ((inhibit-changing-match-data t))
+               (looking-at comment-start-skip))
+         ;; Some major modes set `comment-start-skip' to not exactly what we
+         ;; expect, catching more than actual comments. Use
+         ;; `comment-search-forward' to see if it's really a comment.
+         ;; NOTE: is lookahead of five characters enough for all languages? I
+         ;; hope there's no language with 6-character comment delimiters.
+         (save-match-data
+           (let ((comment-start-pos (comment-search-forward (min (+ 5 loc) (point-max)) t)))
+             (when comment-start-pos
+               (= loc comment-start-pos)))))))
+   (when rainbow-delimiters-escaped-char-predicate
+     (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
 (defun rainbow-delimiters-apply-color (delim depth loc match)
   "Apply color for DEPTH to DELIM at LOC following user settings.
@@ -462,13 +461,12 @@ DELIM is a string specifying delimiter type.
 DEPTH is the delimiter depth, or corresponding face # if colors are repeating.
 LOC is location of character (delimiter) to be colorized.
 MATCH is nil iff it's a mismatched closing delimiter."
-  (and
-   ;; Ensure user has enabled highlighting of this delimiter type.
-   (symbol-value (intern-soft
-                  (concat "rainbow-delimiters-highlight-" delim "s-p")))
-   (rainbow-delimiters-propertize-delimiter loc
-                                            depth
-                                            match)))
+  ;; Ensure user has enabled highlighting of this delimiter type.
+  (when (symbol-value (intern-soft
+                       (concat "rainbow-delimiters-highlight-" delim "s-p")))
+    (rainbow-delimiters-propertize-delimiter loc
+                                             depth
+                                             match)))
 
 ;;; Font-Lock functionality
 
@@ -529,8 +527,9 @@ Used by font-lock for dynamic highlighting."
                                                     delim-pos
                                                     (= (nth 1 closing-delim-info)
                                                        matching-opening-delim))
-                    (setq depth (or (and (<= depth 0) 0) ; unmatched delim
-                                    (1- depth))))))))))))
+                    (setq depth (if (<= depth 0)
+                                    0   ; unmatched delim
+                                  (1- depth))))))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
