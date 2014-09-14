@@ -108,7 +108,7 @@
   :group 'applications)
 
 (defcustom rainbow-delimiters-ignore-modes
-  '(special-mode eshell-mode cider-repl-mode)
+  '(special-mode eshell-mode)
   "List of modes in which `rainbow-delimiters-mode' should not be automatically enabled.
 
 If the mode of a buffer is derived from one of these modes, then
