@@ -572,7 +572,7 @@ Used by font-lock for dynamic highlighting."
   (when font-lock-mode
     (if (fboundp 'font-lock-flush)
         (font-lock-flush)
-      (font-lock-fontify-buffer))))
+      (with-no-warnings (font-lock-fontify-buffer)))))
 
 ;;;###autoload
 (defun rainbow-delimiters-mode-enable ()
