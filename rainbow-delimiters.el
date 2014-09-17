@@ -108,7 +108,9 @@
   :group 'applications)
 
 (defcustom rainbow-delimiters-ignore-modes
-  '(special-mode eshell-mode)
+  '(special-mode eshell-mode completion-list-mode
+    ;; Special RefTeX modes
+    reftex-toc-mode reftex-select-label-mode reftex-select-bib-mode)
   "List of modes in which `rainbow-delimiters-mode' should not be automatically enabled.
 
 If the mode of a buffer is derived from one of these modes, then
