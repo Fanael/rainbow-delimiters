@@ -55,7 +55,6 @@
 ;; (require 'rainbow-delimiters)
 ;;
 ;; 4. Activate the mode in your init file.
-;;    You can choose to enable it only in certain modes, or Emacs-wide:
 ;;
 ;; - To enable it only in certain modes, add lines like the following:
 ;; (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
@@ -63,14 +62,8 @@
 ;; - To enable it in all programming-related emacs modes (Emacs 24+):
 ;; (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 ;;
-;; - To activate the mode globally, add to your init file:
-;; (global-rainbow-delimiters-mode)
-;;
-;; - To temporarily activate rainbow-delimiters mode in an open buffer:
+;; - To toggle rainbow-delimiters mode in an open buffer:
 ;; M-x rainbow-delimiters-mode
-;;
-;; - To toggle global-rainbow-delimiters-mode:
-;; M-x global-rainbow-delimiters-mode
 
 ;;; Customization:
 

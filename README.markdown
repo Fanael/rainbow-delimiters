@@ -31,8 +31,6 @@ Installation instructions:
 3. Add the following to your dot-emacs/init file:
 <br /><code>(require 'rainbow-delimiters)</code>
 4. Activate the mode in your init file.
-<br />
-<i>You can choose to enable it only for specific modes, or Emacs-wide:</i>
 
 
 * To enable it only in certain modes, add lines like the following:
@@ -41,10 +39,7 @@ Installation instructions:
 * To enable it in all programming-related emacs modes (Emacs 24+):
 <br /><code>(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)</code>
 
-* To activate the mode globally, add to your init file:
-<br /><code>(global-rainbow-delimiters-mode)</code>
-
-* To temporarily activate rainbow-delimiters mode in an open buffer:
+* To toggle rainbow-delimiters mode in an open buffer:
 <br /><code>M-x rainbow-delimiters-mode</code>
 
 Additional discussion is at the top of the file and on the EmacsWiki page linked to above.
