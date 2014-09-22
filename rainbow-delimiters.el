@@ -589,9 +589,20 @@ Used by font-lock for dynamic highlighting."
 ;;;###autoload
 (define-globalized-minor-mode global-rainbow-delimiters-mode
   rainbow-delimiters-mode rainbow-delimiters-mode-enable-maybe)
+(make-obsolete
+ 'global-rainbow-delimiters-mode
+ "
+It's a bad idea that breaks some major modes.
+Instead, use `add-hook' to add `rainbow-delimiters-mode' to the hooks of the
+major modes you actually want to use `rainbow-delimiters' in."
+ "1.3.12")
 
 (defun rainbow-delimiters-mode-enable-maybe ()
   "Enable `rainbow-delimiters-mode' if appropriate in this buffer."
+  (message "Warning: `global-rainbow-delimiters-mode' is an obsolete function.
+It's a bad idea that breaks some major modes.
+Instead, use `add-hook' to add `rainbow-delimiters-mode' to the hooks
+of the major modes you actually want to use `rainbow-delimiters' in.")
   (unless (apply 'derived-mode-p rainbow-delimiters-ignore-modes)
     (rainbow-delimiters-mode-enable)))
 
