@@ -452,13 +452,13 @@ Returns t if char at loc meets one of the following conditions:
 (defun rainbow-delimiters-apply-color (delim depth loc match)
   "Apply color for DEPTH to DELIM at LOC following user settings.
 
-DELIM is a string specifying delimiter type.
+DELIM is a symbol of the variable specifying whether to highlight this delimiter
+type.
 DEPTH is the delimiter depth, or corresponding face # if colors are repeating.
 LOC is location of character (delimiter) to be colorized.
 MATCH is nil iff it's a mismatched closing delimiter."
   ;; Ensure user has enabled highlighting of this delimiter type.
-  (when (symbol-value (intern-soft
-                       (concat "rainbow-delimiters-highlight-" delim "s-p")))
+  (when (symbol-value delim)
     (rainbow-delimiters-propertize-delimiter loc
                                              depth
                                              match)))
@@ -469,19 +469,23 @@ MATCH is nil iff it's a mismatched closing delimiter."
   "Regex matching all opening and closing delimiters the mode highlights.")
 
 (defconst rainbow-delimiters-opening-delim-info
-  '((?\( . "paren") (?\{ . "brace") (?\[ . "bracket"))
+  '((?\( . rainbow-delimiters-highlight-parens-p)
+    (?\{ . rainbow-delimiters-highlight-braces-p)
+    (?\[ . rainbow-delimiters-highlight-brackets-p))
   "Open delimiter information: list of (DELIMITER . TYPE).
 
 DELIMITER is the opening delimiter.
-TYPE is the delimiter type string for `rainbow-delimiters-apply-color'.")
+TYPE is the delimiter type for `rainbow-delimiters-apply-color'.")
 
 (defconst rainbow-delimiters-closing-delim-info
-  '((?\) ?\( . "paren") (?\} ?\{ . "brace") (?\] ?\[ . "bracket"))
+  '((?\) ?\( . rainbow-delimiters-highlight-parens-p)
+    (?\} ?\{ . rainbow-delimiters-highlight-braces-p)
+    (?\] ?\[ . rainbow-delimiters-highlight-brackets-p))
   "Closing delimiter information: list of (DELIMITER OPENING . TYPE).
 
 DELIMITER is the closing delimiter.
 OPENING is the corresponding opening delimiter.
-TYPE is the delimiter type string for `rainbow-delimiters-apply-color'.")
+TYPE is the delimiter type for `rainbow-delimiters-apply-color'.")
 
 ;; Main function called by font-lock.
 (defun rainbow-delimiters-propertize (end)
