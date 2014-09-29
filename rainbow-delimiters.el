@@ -465,7 +465,7 @@ MATCH is nil iff it's a mismatched closing delimiter."
 
 ;;; Font-Lock functionality
 
-(defconst rainbow-delimiters-delim-regex "\\(\(\\|\)\\|\\[\\|\\]\\|\{\\|\}\\)"
+(defconst rainbow-delimiters-delim-regex "[]()[{}]"
   "Regex matching all opening and closing delimiters the mode highlights.")
 
 (defconst rainbow-delimiters-opening-delim-info
