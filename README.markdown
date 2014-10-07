@@ -3,7 +3,7 @@ rainbow-delimiters.el:
 
 Rainbow Delimiters is a “rainbow parentheses”-like mode which highlights parentheses, brackets, and braces according to their depth. Each successive level is highlighted in a different color. This makes it easy to spot matching delimiters, orient yourself in the code, and tell which statements are at a given depth.
 
-Great care has been taken to make this mode fast. You shouldn’t see any change in scrolling or editing speed when it's on even when working in delimiter-rich languages like Clojure or Emacs Lisp. It can be used with any language, and can be enabled editor-wide.
+Great care has been taken to make this mode fast. You shouldn’t see any change in scrolling or editing speed when it's on even when working in delimiter-rich languages like Clojure or Emacs Lisp. It can be used with any language.
 
 You can customize the colors rainbow-delimiters uses. The default colors are intentionally subtle; they are unobtrusive enough to make the mode worth looking at even if you usually don’t like rainbow parentheses modes. A number of major color themes such as Zenburn and Solarized have added their own faces for the mode.
 
