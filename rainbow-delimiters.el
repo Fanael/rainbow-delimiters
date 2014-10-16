@@ -513,8 +513,8 @@ Used by font-lock for dynamic highlighting."
                       (rainbow-delimiters-apply-color (nthcdr 2 closing-delim-info)
                                                       depth
                                                       delim-pos
-                                                      (= (nth 1 closing-delim-info)
-                                                         matching-opening-delim))
+                                                      (eq (nth 1 closing-delim-info)
+                                                          matching-opening-delim))
                       (setq depth (if (<= depth 0)
                                       0 ; unmatched delim
                                     (1- depth)))))))))))))
