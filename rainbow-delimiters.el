@@ -89,7 +89,6 @@
 ;; - Intelligent support for other languages: Ruby, LaTeX tags, et al.
 
 ;;; Code:
-(require 'newcomment)
 
 ;;; Customize interface:
 
@@ -411,22 +410,18 @@ Returns t if char at loc meets one of the following conditions:
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
-   (when comment-start-skip    ; starting a comment?
-     (save-excursion
-       (goto-char loc)
-       ;; Fast path: if this test fails, it's not a comment, and we avoid a
-       ;; costly `comment-search-forward' call.
-       (when (let ((inhibit-changing-match-data t))
-               (looking-at comment-start-skip))
-         ;; Some major modes set `comment-start-skip' to not exactly what we
-         ;; expect, catching more than actual comments. Use
-         ;; `comment-search-forward' to see if it's really a comment.
-         ;; NOTE: is lookahead of five characters enough for all languages? I
-         ;; hope there's no language with 6-character comment delimiters.
-         (save-match-data
-           (let ((comment-start-pos (comment-search-forward (min (+ 5 loc) (point-max)) t)))
-             (when comment-start-pos
-               (= loc comment-start-pos)))))))
+   (let ((loc-syntax (car (syntax-after loc)))) ; starting a comment?
+     ;; Note: no need to consider single-char openers, they're already handled
+     ;; by looking at ppss.
+     (cond
+      ;; Two character opener, LOC at the first character?
+      ((/= 0 (logand #x10000 loc-syntax))
+       (/= 0 (logand #x20000 (car (syntax-after (1+ loc))))))
+      ;; Two character opener, LOC at the second character?
+      ((/= 0 (logand #x20000 loc-syntax))
+       (/= 0 (logand #x10000 (or (car (syntax-after (1- loc))) 0))))
+      (t
+       nil)))
    (when rainbow-delimiters-escaped-char-predicate
      (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
@@ -524,8 +519,6 @@ Used by font-lock for dynamic highlighting."
 
 (defun rainbow-delimiters--mode-turn-on ()
   "Set up `rainbow-delimiters-mode'."
-  ;; Necessary for our use of `comment-search-forward'.
-  (comment-normalize-vars t)
   ;; Flush the ppss cache now in case there's something left in there.
   (setq rainbow-delimiters--parse-partial-sexp-cache nil)
   (add-hook 'before-change-functions #'rainbow-delimiters--syntax-ppss-flush-cache t t)
