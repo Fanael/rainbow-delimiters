@@ -297,7 +297,7 @@ Intermediate `parse-partial-sexp' results are added to the cache."
         (let ((state (parse-partial-sexp from newpos nil nil oldstate)))
           (if (/= newpos to)
               (if cache-nearest-after
-                  (push (cons newpos state) (cdr cache-nearest-after))
+                  (setcdr cache-nearest-after (cons (cons newpos state) (cdr cache-nearest-after)))
                 (push (cons newpos state) rainbow-delimiters-parse-partial-sexp-cache)))
           (setq oldstate state
                 from newpos))))
