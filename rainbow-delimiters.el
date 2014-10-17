@@ -441,8 +441,8 @@ MATCH is nil iff it's a mismatched closing delimiter."
   ;; Ensure user has enabled highlighting of this delimiter type.
   (when (symbol-value delim)
     (rainbow-delimiters--propertize-delimiter loc
-                                             depth
-                                             match)))
+                                              depth
+                                              match)))
 
 ;;; Font-Lock functionality
 
@@ -496,18 +496,18 @@ Used by font-lock for dynamic highlighting."
                       (progn
                         (setq depth (1+ depth))
                         (rainbow-delimiters--apply-color (cdr opening-delim-info)
-                                                        depth
-                                                        delim-pos
-                                                        t))
+                                                         depth
+                                                         delim-pos
+                                                         t))
                     ;; Not an opening delimiter, so it's a closing delimiter.
                     (let ((closing-delim-info
                            (assq delim rainbow-delimiters--closing-delim-info))
                           (matching-opening-delim (char-after (nth 1 ppss))))
                       (rainbow-delimiters--apply-color (nthcdr 2 closing-delim-info)
-                                                      depth
-                                                      delim-pos
-                                                      (eq (nth 1 closing-delim-info)
-                                                          matching-opening-delim))
+                                                       depth
+                                                       delim-pos
+                                                       (eq (nth 1 closing-delim-info)
+                                                           matching-opening-delim))
                       (setq depth (if (<= depth 0)
                                       0 ; unmatched delim
                                     (1- depth)))))))))))))
