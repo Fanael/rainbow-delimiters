@@ -284,23 +284,19 @@ The list is ordered descending by car.")
       (setq it (cdr it)))
     (setq rainbow-delimiters-parse-partial-sexp-cache it)))
 
-(defun rainbow-delimiters-syntax-ppss-run (from to oldstate cache-nearest-after)
+(defun rainbow-delimiters-syntax-ppss-run (from to oldstate)
   "Run `parse-partial-sexp' from FROM to TO starting with state OLDSTATE.
 
-CACHE-NEAREST-AFTER should be a list of cache entries starting at the first
-entry after TO, or nil if there's no such entry.
-Intermediate `parse-partial-sexp' results are added to the cache."
+Intermediate `parse-partial-sexp' results are prepended to the cache."
   (if (= from to)
       (parse-partial-sexp from to nil nil oldstate)
     (while (< from to)
-      (let ((newpos (min to (+ from rainbow-delimiters-parse-partial-sexp-cache-max-span))))
-        (let ((state (parse-partial-sexp from newpos nil nil oldstate)))
-          (if (/= newpos to)
-              (if cache-nearest-after
-                  (setcdr cache-nearest-after (cons (cons newpos state) (cdr cache-nearest-after)))
-                (push (cons newpos state) rainbow-delimiters-parse-partial-sexp-cache)))
-          (setq oldstate state
-                from newpos))))
+      (let* ((newpos (min to (+ from rainbow-delimiters-parse-partial-sexp-cache-max-span)))
+             (state (parse-partial-sexp from newpos nil nil oldstate)))
+        (when (/= newpos to)
+          (push (cons newpos state) rainbow-delimiters-parse-partial-sexp-cache))
+        (setq oldstate state
+              from newpos)))
     oldstate))
 
 (defun rainbow-delimiters-syntax-ppss (pos)
@@ -313,16 +309,13 @@ upon.
 This is essentialy `syntax-ppss', only specific to rainbow-delimiters
 to work around a bug."
   (save-excursion
-    (let ((it rainbow-delimiters-parse-partial-sexp-cache)
-          (prev nil))
+    (let ((it rainbow-delimiters-parse-partial-sexp-cache))
       (while (and it (>= (caar it) pos))
-        (setq prev it)
         (setq it (cdr it)))
-      (let* ((nearest-after (if (consp prev) prev nil))
-             (nearest-before (if (consp it) (car it) it))
-             (nearest-before-pos (if nearest-before (car nearest-before) (point-min)))
-             (nearest-before-data (if nearest-before (cdr nearest-before) nil)))
-        (rainbow-delimiters-syntax-ppss-run nearest-before-pos pos nearest-before-data nearest-after)))))
+      (let ((nearest-before (if (consp it) (car it) it)))
+        (if nearest-before
+            (rainbow-delimiters-syntax-ppss-run (car nearest-before) pos (cdr nearest-before))
+          (rainbow-delimiters-syntax-ppss-run (point-min) pos nil))))))
 
 ;;; Nesting level
 
