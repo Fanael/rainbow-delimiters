@@ -34,10 +34,10 @@ Installation instructions:
 
 
 * To enable it only in certain modes, add lines like the following:
-<br /><code>(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)</code>
+<br /><code>(add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)</code>
 
 * To enable it in all programming-related emacs modes (Emacs 24+):
-<br /><code>(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)</code>
+<br /><code>(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)</code>
 
 * To toggle rainbow-delimiters mode in an open buffer:
 <br /><code>M-x rainbow-delimiters-mode</code>

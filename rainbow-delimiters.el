@@ -57,10 +57,10 @@
 ;; 4. Activate the mode in your init file.
 ;;
 ;; - To enable it only in certain modes, add lines like the following:
-;; (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
+;; (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
 ;;
 ;; - To enable it in all programming-related emacs modes (Emacs 24+):
-;; (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+;; (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 ;;
 ;; - To toggle rainbow-delimiters mode in an open buffer:
 ;; M-x rainbow-delimiters-mode
@@ -528,8 +528,8 @@ Used by font-lock for dynamic highlighting."
   (comment-normalize-vars t)
   ;; Flush the ppss cache now in case there's something left in there.
   (setq rainbow-delimiters--parse-partial-sexp-cache nil)
-  (add-hook 'before-change-functions 'rainbow-delimiters--syntax-ppss-flush-cache t t)
-  (add-hook 'change-major-mode-hook 'rainbow-delimiters--mode-turn-off nil t)
+  (add-hook 'before-change-functions #'rainbow-delimiters--syntax-ppss-flush-cache t t)
+  (add-hook 'change-major-mode-hook #'rainbow-delimiters--mode-turn-off nil t)
   (font-lock-add-keywords nil rainbow-delimiters--font-lock-keywords 'append)
   (set (make-local-variable 'jit-lock-contextually) t)
   ;; Create necessary syntax tables inheriting from current major-mode.
@@ -540,8 +540,8 @@ Used by font-lock for dynamic highlighting."
   "Tear down `rainbow-delimiters-mode'."
   (kill-local-variable 'rainbow-delimiters--syntax-table)
   (font-lock-remove-keywords nil rainbow-delimiters--font-lock-keywords)
-  (remove-hook 'change-major-mode-hook 'rainbow-delimiters--mode-turn-off t)
-  (remove-hook 'before-change-functions 'rainbow-delimiters--syntax-ppss-flush-cache t))
+  (remove-hook 'change-major-mode-hook #'rainbow-delimiters--mode-turn-off t)
+  (remove-hook 'before-change-functions #'rainbow-delimiters--syntax-ppss-flush-cache t))
 
 ;;;###autoload
 (define-minor-mode rainbow-delimiters-mode
