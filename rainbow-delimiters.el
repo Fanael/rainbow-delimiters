@@ -416,7 +416,7 @@ Returns t if char at loc meets one of the following conditions:
      (cond
       ;; Two character opener, LOC at the first character?
       ((/= 0 (logand #x10000 loc-syntax))
-       (/= 0 (logand #x20000 (car (syntax-after (1+ loc))))))
+       (/= 0 (logand #x20000 (or (car (syntax-after (1+ loc))) 0))))
       ;; Two character opener, LOC at the second character?
       ((/= 0 (logand #x20000 loc-syntax))
        (/= 0 (logand #x10000 (or (car (syntax-after (1- loc))) 0))))
