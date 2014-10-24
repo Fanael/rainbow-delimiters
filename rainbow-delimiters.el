@@ -347,33 +347,25 @@ Used by font-lock for dynamic highlighting."
 (defconst rainbow-delimiters--font-lock-keywords
   '(rainbow-delimiters--propertize))
 
-(defun rainbow-delimiters--mode-turn-on ()
-  "Set up `rainbow-delimiters-mode'."
-  (font-lock-add-keywords nil rainbow-delimiters--font-lock-keywords 'append)
-  (set (make-local-variable 'jit-lock-contextually) t)
-  ;; `syntax-begin-function' may break the assumption we rely on that
-  ;; `syntax-ppss' is exactly equivalent to `parse-partial-sexp' from
-  ;; `point-min'. Just don't use it, the performance hit should be negligible.
-  (set (make-local-variable 'syntax-begin-function) nil)
-  ;; Obsolete equivalent of `syntax-begin-function'.
-  (when (boundp 'font-lock-beginning-of-syntax-function)
-    (with-no-warnings
-      (set (make-local-variable 'font-lock-beginning-of-syntax-function) nil)))
-  ;; We modified `syntax-begin-function', so flush the cache to avoid getting
-  ;; cached values that used the old value.
-  (syntax-ppss-flush-cache 0))
-
-(defun rainbow-delimiters--mode-turn-off ()
-  "Tear down `rainbow-delimiters-mode'."
-  (font-lock-remove-keywords nil rainbow-delimiters--font-lock-keywords))
-
 ;;;###autoload
 (define-minor-mode rainbow-delimiters-mode
   "Highlight nested parentheses, brackets, and braces according to their depth."
   nil "" nil ; No modeline lighter - it's already obvious when the mode is on.
-  (if rainbow-delimiters-mode
-      (rainbow-delimiters--mode-turn-on)
-    (rainbow-delimiters--mode-turn-off))
+  (font-lock-remove-keywords nil rainbow-delimiters--font-lock-keywords)
+  (when rainbow-delimiters-mode
+    (font-lock-add-keywords nil rainbow-delimiters--font-lock-keywords 'append)
+    (set (make-local-variable 'jit-lock-contextually) t)
+    ;; `syntax-begin-function' may break the assumption we rely on that
+    ;; `syntax-ppss' is exactly equivalent to `parse-partial-sexp' from
+    ;; `point-min'. Just don't use it, the performance hit should be negligible.
+    (set (make-local-variable 'syntax-begin-function) nil)
+    ;; Obsolete equivalent of `syntax-begin-function'.
+    (when (boundp 'font-lock-beginning-of-syntax-function)
+      (with-no-warnings
+        (set (make-local-variable 'font-lock-beginning-of-syntax-function) nil)))
+    ;; We modified `syntax-begin-function', so flush the cache to avoid getting
+    ;; cached values that used the old value.
+    (syntax-ppss-flush-cache 0))
   (when font-lock-mode
     (if (fboundp 'font-lock-flush)
         (font-lock-flush)
