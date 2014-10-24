@@ -106,44 +106,15 @@ When depth exceeds innermost defined face, colors cycle back through."
   :tag "Color Scheme"
   :group 'rainbow-delimiters
   :link '(custom-group-link "rainbow-delimiters")
-  :link '(custom-group-link :tag "Toggle Delimiters" "rainbow-delimiters-toggle-delimiter-highlighting")
   :prefix "rainbow-delimiters-")
 
-;; Choose which delimiters you want to highlight in your preferred language:
+(defcustom rainbow-delimiters-delimiter-blacklist '()
+  "Disable highlighting of selected delimiters.
 
-(defgroup rainbow-delimiters-toggle-delimiter-highlighting nil
-  "Choose which delimiters to highlight."
-  :tag "Toggle Delimiters"
-  :group 'rainbow-delimiters
-  :link '(custom-group-link "rainbow-delimiters")
-  :link '(custom-group-link :tag "Color Scheme" "rainbow-delimiters-faces"))
-
-(defcustom rainbow-delimiters-highlight-parens-p t
-  "Enable highlighting of nested parentheses -- ().
-
-Non-nil (default) enables highlighting of parentheses.
-Nil disables parentheses highlighting."
-  :tag "Highlight Parentheses?"
-  :type 'boolean
-  :group 'rainbow-delimiters-toggle-delimiter-highlighting)
-
-(defcustom rainbow-delimiters-highlight-brackets-p t
-  "Enable highlighting of nested brackets -- [].
-
-Non-nil (default) enables highlighting of brackets.
-Nil disables bracket highlighting."
-  :tag "Highlight Brackets?"
-  :type 'boolean
-  :group 'rainbow-delimiters-toggle-delimiter-highlighting)
-
-(defcustom rainbow-delimiters-highlight-braces-p t
-  "Enable highlighting of nested braces -- {}.
-
-Non-nil (default) enables highlighting of braces.
-Nil disables brace highlighting."
-  :tag "Highlight Braces?"
-  :type 'boolean
-  :group 'rainbow-delimiters-toggle-delimiter-highlighting)
+Delimiters in this list are not highlighted."
+  :tag "Delimiter Blacklist"
+  :type '(repeat character)
+  :group 'rainbow-delimiters)
 
 
 ;;; Faces:
@@ -368,8 +339,9 @@ MATCH is nil iff it's a mismatched closing delimiter."
   (eq (char-before loc) ?\\))
 
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
-  "Return t if char at LOC should be skipped, e.g. if inside a comment.
-PPSS should be the `parse-partial-sexp' state at LOC.
+  "Return t if char at LOC should not be highlighted.
+PPSS is the `parse-partial-sexp' state at LOC.
+DELIM-SYNTAX-CODE is the `car' of a raw syntax descriptor at LOC.
 
 Returns t if char at loc meets one of the following conditions:
 - Inside a string.
@@ -392,19 +364,16 @@ Returns t if char at loc meets one of the following conditions:
    (when rainbow-delimiters-escaped-char-predicate
      (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
-(defun rainbow-delimiters--apply-color (delim depth loc match)
-  "Apply color for DEPTH to DELIM at LOC following user settings.
+(defun rainbow-delimiters--apply-color (depth loc match)
+  "Apply color to the delimiter following user settings.
 
-DELIM is a symbol of the variable specifying whether to highlight this delimiter
-type.
-DEPTH is the delimiter depth, or corresponding face # if colors are repeating.
-LOC is location of character (delimiter) to be colorized.
+DEPTH is the delimiter depth.
+LOC is the location of delimiters to be highlighted.
 MATCH is nil iff it's a mismatched closing delimiter."
-  ;; Ensure user has enabled highlighting of this delimiter type.
-  ;; (when (symbol-value delim)
-  (rainbow-delimiters--propertize-delimiter loc
-                                            depth
-                                            match));; )
+  (unless (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)
+    (rainbow-delimiters--propertize-delimiter loc
+                                              depth
+                                              match)))
 
 ;;; Font-Lock functionality
 
@@ -434,14 +403,12 @@ Used by font-lock for dynamic highlighting."
             (if (= 4 (logand #xFFFF (car delim-syntax)))
                 (progn
                   (setq depth (1+ depth))
-                  (rainbow-delimiters--apply-color nil
-                                                   depth
+                  (rainbow-delimiters--apply-color depth
                                                    delim-pos
                                                    t))
               ;; Not an opening delimiter, so it's a closing delimiter.
               (let ((matching-opening-delim (char-after (nth 1 ppss))))
-                (rainbow-delimiters--apply-color nil
-                                                 depth
+                (rainbow-delimiters--apply-color depth
                                                  delim-pos
                                                  (eq (cdr delim-syntax)
                                                      matching-opening-delim))

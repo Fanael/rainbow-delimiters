@@ -184,14 +184,9 @@
                  0 1 (face (rainbow-delimiters-depth-1-face))
                  1 2 (face (rainbow-delimiters-mismatched-face))))))))
 
-(defmacro doesnt-highlight-disabled-delimiters (name opening)
-  `(ert-deftest ,(intern (format "doesnt-highlight-disabled-%s" name)) ()
-     (let ((,(intern (format "rainbow-delimiters-highlight-%s-p" name)) nil))
-       (should-do-nothing 'text-mode ,(format "%c" opening)))))
-
-(doesnt-highlight-disabled-delimiters "parens" ?\()
-(doesnt-highlight-disabled-delimiters "brackets" ?\[)
-(doesnt-highlight-disabled-delimiters "braces" ?\{)
+(ert-deftest doesnt-highlighlight-disabled-delimiters ()
+  (let ((rainbow-delimiters-delimiter-blacklist '(?\( ?\))))
+    (should-do-nothing 'text-mode "(((())))")))
 
 (ert-deftest doesnt-highlight-escaped-delimiters ()
   (should-do-nothing 'emacs-lisp-mode "?\("))
