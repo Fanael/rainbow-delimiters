@@ -384,8 +384,7 @@ Used by font-lock for dynamic highlighting."
            (ppss (rainbow-delimiters--syntax-ppss last-ppss-pos))
            ;; Ignore negative depths created by unmatched closing delimiters.
            (depth (max 0 (nth 0 ppss))))
-      (while (and (< (point) end)
-                  (re-search-forward rainbow-delimiters--delim-regex end t))
+      (while (re-search-forward rainbow-delimiters--delim-regex end t)
         (let* ((delim-pos (match-beginning 0))
                (delim-syntax (syntax-after delim-pos)))
           (setq ppss (save-excursion
