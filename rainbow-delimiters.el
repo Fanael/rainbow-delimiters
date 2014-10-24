@@ -419,8 +419,6 @@ Used by font-lock for dynamic highlighting."
 
 (defun rainbow-delimiters--mode-turn-on ()
   "Set up `rainbow-delimiters-mode'."
-  ;; Flush the ppss cache now in case there's something left in there.
-  (setq rainbow-delimiters--parse-partial-sexp-cache nil)
   (add-hook 'before-change-functions #'rainbow-delimiters--syntax-ppss-flush-cache t t)
   (add-hook 'change-major-mode-hook #'rainbow-delimiters--mode-turn-off nil t)
   (font-lock-add-keywords nil rainbow-delimiters--font-lock-keywords 'append)
@@ -428,6 +426,7 @@ Used by font-lock for dynamic highlighting."
 
 (defun rainbow-delimiters--mode-turn-off ()
   "Tear down `rainbow-delimiters-mode'."
+  (kill-local-variable 'rainbow-delimiters--parse-partial-sexp-cache)
   (font-lock-remove-keywords nil rainbow-delimiters--font-lock-keywords)
   (remove-hook 'change-major-mode-hook #'rainbow-delimiters--mode-turn-off t)
   (remove-hook 'before-change-functions #'rainbow-delimiters--syntax-ppss-flush-cache t))
