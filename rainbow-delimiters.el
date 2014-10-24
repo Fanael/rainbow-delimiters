@@ -203,7 +203,6 @@ This should be smaller than `rainbow-delimiters-max-face-count'."
   :type 'integer
   :group 'rainbow-delimiters-faces)
 
-;;; Face utility functions
 
 (defun rainbow-delimiters--depth-face (depth)
   "Return face name for DEPTH as a symbol 'rainbow-delimiters-depth-DEPTH-face'.
@@ -223,71 +222,6 @@ For example: `rainbow-delimiters-depth-1-face'."
                       (- rainbow-delimiters-max-face-count
                          rainbow-delimiters-outermost-only-face-count)))))
            "-face")))
-
-;;; Parse partial sexp cache
-
-;; If the block inside the delimiters is too big (where "too big" is
-;; in some way related to `jit-lock-chunk-size'), `syntax-ppss' will
-;; for some reason return wrong depth. Is it because we're misusing
-;; it? Is it because it's buggy? Nobody knows. But users do notice it,
-;; and have reported it as a bug. Hence this workaround: don't use
-;; `syntax-ppss' at all, use the low-level primitive instead. However,
-;; naively replacing `syntax-ppss' with `parse-partial-sexp' slows
-;; down the delimiter highlighting noticeably in big files. Therefore,
-;; we build a simple cache around it. This brings the speed to around
-;; what it used to be, while fixing the bug. See issue #25.
-
-(defvar rainbow-delimiters--parse-partial-sexp-cache nil
-  "Cache of the last `parse-partial-sexp' call.
-
-It's a list of conses, where car is the position for which `parse-partial-sexp'
-was called and cdr is the result of the call.
-The list is ordered descending by car.")
-(make-variable-buffer-local 'rainbow-delimiters--parse-partial-sexp-cache)
-
-(defconst rainbow-delimiters--parse-partial-sexp-cache-max-span 20000)
-
-(defun rainbow-delimiters--syntax-ppss-flush-cache (beg _end)
-  "Flush the `parse-partial-sexp' cache starting from position BEG."
-  (let ((it rainbow-delimiters--parse-partial-sexp-cache))
-    (while (and it (>= (caar it) beg))
-      (setq it (cdr it)))
-    (setq rainbow-delimiters--parse-partial-sexp-cache it)))
-
-(defun rainbow-delimiters--syntax-ppss-run (from to oldstate)
-  "Run `parse-partial-sexp' from FROM to TO starting with state OLDSTATE.
-
-Intermediate `parse-partial-sexp' results are prepended to the cache."
-  (if (= from to)
-      (parse-partial-sexp from to nil nil oldstate)
-    (while (< from to)
-      (let* ((newpos (min to (+ from rainbow-delimiters--parse-partial-sexp-cache-max-span)))
-             (state (parse-partial-sexp from newpos nil nil oldstate)))
-        (when (/= newpos to)
-          (push (cons newpos state) rainbow-delimiters--parse-partial-sexp-cache))
-        (setq oldstate state
-              from newpos)))
-    oldstate))
-
-(defun rainbow-delimiters--syntax-ppss (pos)
-  "Parse-Partial-Sexp State at POS, defaulting to point.
-
-The returned value is the same as that of `parse-partial-sexp' from
-`point-min' to POS, except that positions 2 and 6 cannot be relied
-upon.
-
-This is essentialy `syntax-ppss', only specific to rainbow-delimiters
-to work around a bug."
-  (save-excursion
-    (let ((it rainbow-delimiters--parse-partial-sexp-cache))
-      (while (and it (>= (caar it) pos))
-        (setq it (cdr it)))
-      (let ((nearest-before (if (consp it) (car it) it)))
-        (if nearest-before
-            (rainbow-delimiters--syntax-ppss-run (car nearest-before) pos (cdr nearest-before))
-          (rainbow-delimiters--syntax-ppss-run (point-min) pos nil))))))
-
-;;; Text properties
 
 (defun rainbow-delimiters--propertize-delimiter (loc depth match)
   "Highlight a single delimiter at LOC according to DEPTH.
@@ -366,8 +300,6 @@ MATCH is nil iff it's a mismatched closing delimiter."
                                               depth
                                               match)))
 
-;;; Font-Lock functionality
-
 (defconst rainbow-delimiters--delim-regex "\\s(\\|\\s)"
   "Regex matching all opening and closing delimiters the mode highlights.")
 
@@ -381,7 +313,7 @@ Used by font-lock for dynamic highlighting."
   (let ((inhibit-point-motion-hooks t))
     ;; Point can be anywhere in buffer; determine the nesting depth at point.
     (let* ((last-ppss-pos (point))
-           (ppss (rainbow-delimiters--syntax-ppss last-ppss-pos))
+           (ppss (syntax-ppss))
            ;; Ignore negative depths created by unmatched closing delimiters.
            (depth (max 0 (nth 0 ppss))))
       (while (re-search-forward rainbow-delimiters--delim-regex end t)
@@ -410,8 +342,6 @@ Used by font-lock for dynamic highlighting."
   ;; to do.
   nil)
 
-;;; Minor mode:
-
 ;; NB: no face defined here because we apply the faces ourselves instead of
 ;; leaving that to font-lock.
 (defconst rainbow-delimiters--font-lock-keywords
@@ -419,17 +349,23 @@ Used by font-lock for dynamic highlighting."
 
 (defun rainbow-delimiters--mode-turn-on ()
   "Set up `rainbow-delimiters-mode'."
-  (add-hook 'before-change-functions #'rainbow-delimiters--syntax-ppss-flush-cache t t)
-  (add-hook 'change-major-mode-hook #'rainbow-delimiters--mode-turn-off nil t)
   (font-lock-add-keywords nil rainbow-delimiters--font-lock-keywords 'append)
-  (set (make-local-variable 'jit-lock-contextually) t))
+  (set (make-local-variable 'jit-lock-contextually) t)
+  ;; `syntax-begin-function' may break the assumption we rely on that
+  ;; `syntax-ppss' is exactly equivalent to `parse-partial-sexp' from
+  ;; `point-min'. Just don't use it, the performance hit should be negligible.
+  (set (make-local-variable 'syntax-begin-function) nil)
+  ;; Obsolete equivalent of `syntax-begin-function'.
+  (when (boundp 'font-lock-beginning-of-syntax-function)
+    (with-no-warnings
+      (set (make-local-variable 'font-lock-beginning-of-syntax-function) nil)))
+  ;; We modified `syntax-begin-function', so flush the cache to avoid getting
+  ;; cached values that used the old value.
+  (syntax-ppss-flush-cache 0))
 
 (defun rainbow-delimiters--mode-turn-off ()
   "Tear down `rainbow-delimiters-mode'."
-  (kill-local-variable 'rainbow-delimiters--parse-partial-sexp-cache)
-  (font-lock-remove-keywords nil rainbow-delimiters--font-lock-keywords)
-  (remove-hook 'change-major-mode-hook #'rainbow-delimiters--mode-turn-off t)
-  (remove-hook 'before-change-functions #'rainbow-delimiters--syntax-ppss-flush-cache t))
+  (font-lock-remove-keywords nil rainbow-delimiters--font-lock-keywords))
 
 ;;;###autoload
 (define-minor-mode rainbow-delimiters-mode
