@@ -287,15 +287,6 @@ to work around a bug."
             (rainbow-delimiters--syntax-ppss-run (car nearest-before) pos (cdr nearest-before))
           (rainbow-delimiters--syntax-ppss-run (point-min) pos nil))))))
 
-;;; Nesting level
-
-(defun rainbow-delimiters--depth (ppss)
-  "Return # of nested levels of delimiters at parse state PPSS."
-  (let ((depth (car ppss)))
-    (if (>= depth 0)
-        depth
-      0))) ; Ignore negative depths created by unmatched closing parens.
-
 ;;; Text properties
 
 (defun rainbow-delimiters--propertize-delimiter (loc depth match)
@@ -391,7 +382,8 @@ Used by font-lock for dynamic highlighting."
     ;; Point can be anywhere in buffer; determine the nesting depth at point.
     (let* ((last-ppss-pos (point))
            (ppss (rainbow-delimiters--syntax-ppss last-ppss-pos))
-           (depth (rainbow-delimiters--depth ppss)))
+           ;; Ignore negative depths created by unmatched closing delimiters.
+           (depth (max 0 (nth 0 ppss))))
       (while (and (< (point) end)
                   (re-search-forward rainbow-delimiters--delim-regex end t))
         (let* ((delim-pos (match-beginning 0))
@@ -412,9 +404,9 @@ Used by font-lock for dynamic highlighting."
                                                  delim-pos
                                                  (eq (cdr delim-syntax)
                                                      matching-opening-delim))
-                (setq depth (if (<= depth 0)
-                                0 ; unmatched delim
-                              (1- depth))))))))))
+                ;; Don't let `depth' go negative, even if there's an unmatched
+                ;; delimiter.
+                (setq depth (max 0 (1- depth))))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
