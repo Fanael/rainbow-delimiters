@@ -6,7 +6,7 @@
 ;; Author: Jeremy Rayman <opensource@jeremyrayman.com>
 ;;         Fanael Linithien <fanael4@gmail.com>
 ;; Created: 2010-09-02
-;; Version: 1.3.12
+;; Version: 1.3.13
 ;; Keywords: faces, convenience, lisp, tools
 ;; Homepage: https://github.com/jlr/rainbow-delimiters
 
