@@ -1,14 +1,14 @@
 ;;; rainbow-delimiters.el --- Highlight nested parens, brackets, braces a different color at each depth.
 
-;; Copyright (C) 2010-2013 Jeremy Rayman.
+;; Copyright (C)
+;;   2010-2013 Jeremy Rayman
+;;   2013-2014 Fanael Linithien
 ;; Author: Jeremy Rayman <opensource@jeremyrayman.com>
-;; Maintainer: Jeremy Rayman <opensource@jeremyrayman.com>
+;;         Fanael Linithien <fanael4@gmail.com>
 ;; Created: 2010-09-02
 ;; Version: 1.3.12
-;; Keywords: faces, convenience, lisp, matching, tools, rainbow, rainbow parentheses, rainbow parens
-;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
-;; Github: http://github.com/jlr/rainbow-delimiters
-;; URL: http://github.com/jlr/rainbow-delimiters/raw/master/rainbow-delimiters.el
+;; Keywords: faces, convenience, lisp, tools
+;; Homepage: https://github.com/jlr/rainbow-delimiters
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -95,8 +95,8 @@
 (defgroup rainbow-delimiters nil
   "Highlight nested parentheses, brackets, and braces according to their depth."
   :prefix "rainbow-delimiters-"
-  :link '(url-link :tag "Website for rainbow-delimiters (EmacsWiki)"
-                   "http://www.emacswiki.org/emacs/RainbowDelimiters")
+  :link '(url-link :tag "Website for rainbow-delimiters"
+                   "https://github.com/jlr/rainbow-delimiters")
   :group 'applications)
 
 (defgroup rainbow-delimiters-faces nil
