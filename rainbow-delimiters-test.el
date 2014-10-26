@@ -48,6 +48,7 @@
   (declare (indent defun) (debug t))
   `(with-temp-buffer
      (funcall ,mode)
+     (font-lock-mode)
      (rainbow-delimiters-mode)
      ,@body))
 
