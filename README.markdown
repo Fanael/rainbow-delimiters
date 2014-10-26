@@ -53,3 +53,15 @@ file:
 To start the mode automatically in most programming modes (Emacs 24 and above):
 
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+## Customization
+
+To customize various options, including the color theme:
+
+    M-x customize-group rainbow-delimiters
+
+You can specify custom colors by customizing following faces:
+ * Faces take the form `rainbow-delimiters-depth-N-face`, with N being the
+   depth. Depth begins at 1, the outermost color. Faces exist for depths 1-9.
+ * The unmatched delimiter face: `rainbow-delimiters-unmatched-face`.
+ * The mismatched delimiter face: `rainbow-delimiters-mismatched-face`.

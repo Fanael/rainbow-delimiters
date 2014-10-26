@@ -55,17 +55,14 @@
 
 ;;; Customization:
 
-;; To customize various options, including the color scheme:
-;; M-x customize-group rainbow-delimiters
+;; To customize various options, including the color theme:
+;;   M-x customize-group rainbow-delimiters
 ;;
-;; deftheme / color-theme.el users:
-;; You can specify custom colors by adding the appropriate faces to your theme.
-;; - Faces take the form of:
-;;   'rainbow-delimiters-depth-#-face' with # being the depth.
-;;   Depth begins at 1, the outermost color.
-;;   Faces exist for depths 1-9.
-;; - The unmatched delimiter face (normally colored red) is:
-;;   'rainbow-delimiters-unmatched-face'
+;; You can specify custom colors by customizing following faces:
+;; - Faces take the form `rainbow-delimiters-depth-N-face', with N being the
+;;   depth. Depth begins at 1, the outermost color. Faces exist for depths 1-9.
+;; - The unmatched delimiter face: `rainbow-delimiters-unmatched-face'.
+;; - The mismatched delimiter face: `rainbow-delimiters-mismatched-face'.
 
 ;;; Code:
 
@@ -82,7 +79,7 @@
   "Faces for successively nested pairs of delimiters.
 
 When depth exceeds innermost defined face, colors cycle back through."
-  :tag "Color Scheme"
+  :tag "Color theme"
   :group 'rainbow-delimiters
   :link '(custom-group-link "rainbow-delimiters")
   :prefix "rainbow-delimiters-")
