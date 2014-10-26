@@ -23,7 +23,7 @@ mode.
 This is the official github repository for `rainbow-delimiters`.
 
 The latest **release** of `rainbow-delimiters` is always found at
-(https://github.com/Fanael/rainbow-delimiters/tree/master)
+https://github.com/Fanael/rainbow-delimiters/tree/master
 
 ## Installation
 
