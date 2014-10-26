@@ -1,0 +1,18 @@
+language: emacs-lisp
+env:
+  - EMACS=emacs23
+  - EMACS=emacs24
+  - EMACS=emacs-snapshot
+before_install:
+  - sudo add-apt-repository -y ppa:cassou/emacs
+  - sudo add-apt-repository -y ppa:ubuntu-elisp/ppa
+  - sudo apt-get update -y -q
+  - sudo apt-get install emacs23-nox emacs24-nox emacs-snapshot-nox
+install:
+  - $EMACS -Q -batch --eval '(setq byte-compile-error-on-warn t)' -f batch-byte-compile rainbow-delimiters.el
+script:
+  - if ! [ "$EMACS" = "emacs23" ]; then
+        $EMACS -Q -batch -l rainbow-delimiters-test.el -f ert-run-tests-batch-and-exit;
+    fi
+notifications:
+  email: false
