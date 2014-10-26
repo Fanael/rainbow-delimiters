@@ -67,15 +67,6 @@
 ;; - The unmatched delimiter face (normally colored red) is:
 ;;   'rainbow-delimiters-unmatched-face'
 
-;;; TODO:
-
-;; - Add support for independent depth tracking of each delimiter type
-;;   for users of C-like languages.
-;; - Python style - increase depth with each new indentation.
-;; - Add support for nested tags (XML, HTML)
-;; - Set up proper example defthemes for rainbow-delimiters faces.
-;; - Intelligent support for other languages: Ruby, LaTeX tags, et al.
-
 ;;; Code:
 
 ;;; Customize interface:
