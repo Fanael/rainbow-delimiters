@@ -8,7 +8,7 @@
 ;; Created: 2010-09-02
 ;; Version: 1.3.13
 ;; Keywords: faces, convenience, lisp, tools
-;; Homepage: https://github.com/jlr/rainbow-delimiters
+;; Homepage: https://github.com/Fanael/rainbow-delimiters
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -40,8 +40,6 @@
 ;; shouldn't be visually intrusive. Color schemes are always a matter of
 ;; taste.  If you take the time to design a new color scheme, please share
 ;; (even a simple list of colors works) on the EmacsWiki page or via github.
-;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
-;; Github: http://github.com/jlr/rainbow-delimiters
 
 
 ;;; Installation:
@@ -96,7 +94,7 @@
   "Highlight nested parentheses, brackets, and braces according to their depth."
   :prefix "rainbow-delimiters-"
   :link '(url-link :tag "Website for rainbow-delimiters"
-                   "https://github.com/jlr/rainbow-delimiters")
+                   "https://github.com/Fanael/rainbow-delimiters")
   :group 'applications)
 
 (defgroup rainbow-delimiters-faces nil

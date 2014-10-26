@@ -12,7 +12,7 @@ This is the official github repository for rainbow-delimiters.
 The latest <b>release</b> of rainbow-delimiters.el is always found here:
 <br />
 <b>
-* [rainbow-delimiters.el](http://github.com/jlr/rainbow-delimiters/raw/master/rainbow-delimiters.el)
+* [rainbow-delimiters.el](http://github.com/Fanael/rainbow-delimiters/raw/master/rainbow-delimiters.el)
 </b>
 
 Further information is available on the [EmacsWiki page](http://www.emacswiki.org/emacs/RainbowDelimiters):
