@@ -28,7 +28,8 @@ https://github.com/Fanael/rainbow-delimiters/tree/master
 ## Installation
 
 The recommended way is to use [MELPA](http://melpa.org/) or
-[MELPA Stable](http://melpa.org/). If either is in your `package-archives`, do
+[MELPA Stable](http://stable.melpa.org/). If either is in your
+`package-archives`, do
 
     M-x package-install RET rainbow-delimiters RET
 

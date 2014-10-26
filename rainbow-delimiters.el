@@ -37,8 +37,8 @@
 
 ;;; Installation:
 
-;; The recommended way is to use  MELPA (http://melpa.org/) or
-;; MELPA Stable (http://melpa.org/). If either is in your `package-archives', do
+;; The recommended way is to use MELPA (http://melpa.org/) or MELPA Stable
+;; (http://stable.melpa.org/). If either is in your `package-archives', do
 ;;   M-x package-install RET rainbow-delimiters RET
 ;; Otherwise, open `rainbow-delimiters.el' in Emacs and use
 ;;   M-x package-install-from-buffer
