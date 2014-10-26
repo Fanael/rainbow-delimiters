@@ -40,6 +40,7 @@
   (error "This file should only be used noninteractively"))
 
 (push (file-name-directory load-file-name) load-path)
+(setq font-lock-verbose t)
 
 (require 'rainbow-delimiters)
 (require 'ert)
