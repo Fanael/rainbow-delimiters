@@ -11,6 +11,10 @@
 ;; Keywords: faces, convenience, lisp, tools
 ;; Homepage: https://github.com/Fanael/rainbow-delimiters
 
+;; Note: despite `lexical-binding', there's no Emacs 24 dependency.
+;; This is merely an optimization for Emacs 24+, the code is supposed to work
+;; with *both* dynamic and lexical binding.
+
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
