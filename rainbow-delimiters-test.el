@@ -227,5 +227,17 @@
                    6 7 (face (rainbow-delimiters-depth-2-face))
                    7 8 (face (rainbow-delimiters-depth-1-face)))))))))
 
+(ert-deftest highlights-already-highlighted ()
+  (with-temp-buffer-in-mode 'diff-mode
+    (with-string (str "+ foo ()\n")
+      (should (ert-equal-including-properties
+               (buffer-string)
+               #("+ foo ()\n"
+                 0 1 (face diff-indicator-added)
+                 1 6 (face diff-added)
+                 6 7 (face (rainbow-delimiters-depth-1-face diff-added))
+                 7 8 (face (rainbow-delimiters-depth-1-face diff-added))
+                 8 9 (face diff-added)))))))
+
 (provide 'rainbow-delimiters-test)
 ;;; rainbow-delimiters-test.el ends here
