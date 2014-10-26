@@ -5,6 +5,7 @@
 ;;   2013-2014 Fanael Linithien
 ;; Author: Jeremy Rayman <opensource@jeremyrayman.com>
 ;;         Fanael Linithien <fanael4@gmail.com>
+;; Maintainer: Fanael Linithien <fanael4@gmail.com>
 ;; Created: 2010-09-02
 ;; Version: 1.3.13
 ;; Keywords: faces, convenience, lisp, tools
