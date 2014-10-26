@@ -23,45 +23,35 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 ;;; Commentary:
 ;;
-;; Rainbow-delimiters is a “rainbow parentheses”-like mode which highlights
+;; Rainbow-delimiters is a "rainbow parentheses"-like mode which highlights
 ;; parentheses, brackets, and braces according to their depth. Each
 ;; successive level is highlighted in a different color. This makes it easy
 ;; to spot matching delimiters, orient yourself in the code, and tell which
 ;; statements are at a given level.
 ;;
-;; Great care has been taken to make this mode FAST. You shouldn't see
+;; Great care has been taken to make this mode fast. You shouldn't see
 ;; any discernible change in scrolling or editing speed while using it,
 ;; even in delimiter-rich languages like Clojure, Lisp, and Scheme.
-;;
-;; Default colors are subtle, with the philosophy that syntax highlighting
-;; shouldn't be visually intrusive. Color schemes are always a matter of
-;; taste.  If you take the time to design a new color scheme, please share
-;; (even a simple list of colors works) on the EmacsWiki page or via github.
-
 
 ;;; Installation:
 
-;; 1. Place rainbow-delimiters.el on your emacs load-path.
+;; The recommended way is to use  MELPA (http://melpa.org/) or
+;; MELPA Stable (http://melpa.org/). If either is in your `package-archives', do
+;;   M-x package-install RET rainbow-delimiters RET
+;; Otherwise, open `rainbow-delimiters.el' in Emacs and use
+;;   M-x package-install-from-buffer
+;; Any other methods of installation are unsupported.
 ;;
-;; 2. Compile the file (necessary for speed):
-;; M-x byte-compile-file <location of rainbow-delimiters.el>
-;;
-;; 3. Add the following to your dot-emacs/init file:
-;; (require 'rainbow-delimiters)
-;;
-;; 4. Activate the mode in your init file.
-;;
-;; - To enable it only in certain modes, add lines like the following:
-;; (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
-;;
-;; - To enable it in all programming-related emacs modes (Emacs 24+):
-;; (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-;;
-;; - To toggle rainbow-delimiters mode in an open buffer:
-;; M-x rainbow-delimiters-mode
+;; To toggle the mode in the current buffer:
+;;   M-x rainbow-delimiters-mode
+;; To start the mode automatically in `foo-mode', add the following to your init
+;; file:
+;;   (add-hook 'foo-mode-hook #'rainbow-delimiters-mode)
+;; To start the mode automatically in most programming modes (Emacs 24 and
+;; above):
+;;   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
 ;;; Customization:
 
@@ -113,7 +103,6 @@ Delimiters in this list are not highlighted."
   :tag "Delimiter Blacklist"
   :type '(repeat character)
   :group 'rainbow-delimiters)
-
 
 ;;; Faces:
 

@@ -1,45 +1,50 @@
-rainbow-delimiters.el:
-======================
+# rainbow-delimiters
 
-Rainbow Delimiters is a “rainbow parentheses”-like mode which highlights parentheses, brackets, and braces according to their depth. Each successive level is highlighted in a different color. This makes it easy to spot matching delimiters, orient yourself in the code, and tell which statements are at a given depth.
+`rainbow-delimiters` is a "rainbow parentheses"-like mode which highlights
+delimiters such as parentheses, brackets or braces according to their depth.
+Each successive level is highlighted in a different color. This makes it easy to
+spot matching delimiters, orient yourself in the code, and tell which statements
+are at a given depth.
 
-Great care has been taken to make this mode fast. You shouldn’t see any change in scrolling or editing speed when it's on even when working in delimiter-rich languages like Clojure or Emacs Lisp. It can be used with any language.
+Great care has been taken to make this mode fast. You shouldn't see any change
+in scrolling or editing speed when it's on even when working in delimiter-rich
+languages like Clojure or Emacs Lisp. It can be used with any language.
 
-You can customize the colors rainbow-delimiters uses. The default colors are intentionally subtle; they are unobtrusive enough to make the mode worth looking at even if you usually don’t like rainbow parentheses modes. A number of major color themes such as Zenburn and Solarized have added their own faces for the mode.
+You can customize the colors `rainbow-delimiters` uses. The default colors are
+intentionally subtle; they are unobtrusive enough to make the mode worth looking
+at even if you usually don't like rainbow parentheses modes. A number of major
+color themes such as Zenburn and Solarized have added their own faces for the
+mode.
 
-This is the official github repository for rainbow-delimiters.
+This is the official github repository for `rainbow-delimiters`.
 
-The latest <b>release</b> of rainbow-delimiters.el is always found here:
-<br />
-<b>
-* [rainbow-delimiters.el](http://github.com/Fanael/rainbow-delimiters/raw/master/rainbow-delimiters.el)
-</b>
+The latest **release** of `rainbow-delimiters` is always found at
+(https://github.com/Fanael/rainbow-delimiters/tree/master)
 
-Further information is available on the [EmacsWiki page](http://www.emacswiki.org/emacs/RainbowDelimiters):
-<br />
-* http://www.emacswiki.org/emacs/RainbowDelimiters
+## Installation
 
+The recommended way is to use [MELPA](http://melpa.org/) or
+[MELPA Stable](http://melpa.org/). If either is in your `package-archives`, do
 
+    M-x package-install RET rainbow-delimiters RET
 
-Installation instructions:
---------------------------
+Otherwise, open `rainbow-delimiters.el` in Emacs and use
 
-1. Place rainbow-delimiters.el on your emacs load-path.
+    M-x package-install-from-buffer
 
-2. Compile the file (necessary for speed):
-<br /><code>M-x byte-compile-file [location of rainbow-delimiters.el]</code>
-3. Add the following to your dot-emacs/init file:
-<br /><code>(require 'rainbow-delimiters)</code>
-4. Activate the mode in your init file.
+Any other methods of installation are unsupported.
 
+## Usage
 
-* To enable it only in certain modes, add lines like the following:
-<br /><code>(add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)</code>
+To toggle the mode in the current buffer:
 
-* To enable it in all programming-related emacs modes (Emacs 24+):
-<br /><code>(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)</code>
+    M-x rainbow-delimiters-mode
 
-* To toggle rainbow-delimiters mode in an open buffer:
-<br /><code>M-x rainbow-delimiters-mode</code>
+To start the mode automatically in `foo-mode`, add the following to your init
+file:
 
-Additional discussion is at the top of the file and on the EmacsWiki page linked to above.
+    (add-hook 'foo-mode-hook #'rainbow-delimiters-mode)
+
+To start the mode automatically in most programming modes (Emacs 24 and above):
+
+    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
