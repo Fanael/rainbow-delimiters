@@ -203,7 +203,7 @@ For example: `rainbow-delimiters-depth-1-face'."
                          rainbow-delimiters-outermost-only-face-count)))))
            "-face")))
 
-(defun rainbow-delimiters--propertize-delimiter (loc depth match)
+(defun rainbow-delimiters--apply-color (loc depth match)
   "Highlight a single delimiter at LOC according to DEPTH.
 
 LOC is the location of the character to add text properties to.
@@ -251,7 +251,8 @@ DELIM-SYNTAX-CODE is the `car' of a raw syntax descriptor at LOC.
 Returns t if char at loc meets one of the following conditions:
 - Inside a string.
 - Inside a comment.
-- Is an escaped char, e.g. ?\)"
+- Is an escaped char, e.g. ?\)
+- Is a blacklisted character."
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
@@ -267,18 +268,8 @@ Returns t if char at loc meets one of the following conditions:
     (t
      nil))
    (when rainbow-delimiters-escaped-char-predicate
-     (funcall rainbow-delimiters-escaped-char-predicate loc))))
-
-(defun rainbow-delimiters--apply-color (depth loc match)
-  "Apply color to the delimiter following user settings.
-
-DEPTH is the delimiter depth.
-LOC is the location of delimiters to be highlighted.
-MATCH is nil iff it's a mismatched closing delimiter."
-  (unless (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)
-    (rainbow-delimiters--propertize-delimiter loc
-                                              depth
-                                              match)))
+     (funcall rainbow-delimiters-escaped-char-predicate loc))
+   (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)))
 
 (defconst rainbow-delimiters--delim-regex "\\s(\\|\\s)"
   "Regex matching all opening and closing delimiters the mode highlights.")
@@ -306,13 +297,13 @@ Used by font-lock for dynamic highlighting."
             (if (= 4 (logand #xFFFF (car delim-syntax)))
                 (progn
                   (setq depth (1+ depth))
-                  (rainbow-delimiters--apply-color depth
-                                                   delim-pos
+                  (rainbow-delimiters--apply-color delim-pos
+                                                   depth
                                                    t))
               ;; Not an opening delimiter, so it's a closing delimiter.
               (let ((matching-opening-delim (char-after (nth 1 ppss))))
-                (rainbow-delimiters--apply-color depth
-                                                 delim-pos
+                (rainbow-delimiters--apply-color delim-pos
+                                                 depth
                                                  (eq (cdr delim-syntax)
                                                      matching-opening-delim))
                 ;; Don't let `depth' go negative, even if there's an unmatched
