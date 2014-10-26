@@ -144,12 +144,15 @@
   (with-temp-buffer-in-mode 'c++-mode
     (with-string (str "foo<int> x;")
       (should (ert-equal-including-properties
-               (buffer-string)
+               (progn
+                 (remove-list-of-text-properties
+                  (point-min) (point-max) '(category c-type syntax-table))
+                 (buffer-string))
                #("foo<int> x;"
                  0 3 (face font-lock-type-face)
-                 3 4 (category c-<-as-paren-syntax face (rainbow-delimiters-depth-1-face))
+                 3 4 (face (rainbow-delimiters-depth-1-face))
                  4 7 (face font-lock-type-face)
-                 7 8 (category c->-as-paren-syntax c-type c-decl-id-start face (rainbow-delimiters-depth-1-face))
+                 7 8 (face (rainbow-delimiters-depth-1-face))
                  9 10 (face font-lock-variable-name-face)))))))
 
 (ert-deftest doesnt-higlight-nondelimiters-1 ()
