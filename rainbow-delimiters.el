@@ -112,64 +112,22 @@ Delimiters in this list are not highlighted."
   "Face to highlight mismatched closing delimiters in."
   :group 'rainbow-delimiters-faces)
 
-;; Faces for highlighting delimiters by nesting level:
-(defface rainbow-delimiters-depth-1-face
-  '((((background light)) (:foreground "#707183"))
-    (((background dark)) (:foreground "grey55")))
-  "Nested delimiters face, depth 1 - outermost set."
-  :tag "Rainbow Delimiters Depth 1 Face -- OUTERMOST"
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-2-face
-  '((((background light)) (:foreground "#7388d6"))
-    (((background dark)) (:foreground "#93a8c6")))
-  "Nested delimiters face, depth 2."
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-3-face
-  '((((background light)) (:foreground "#909183"))
-    (((background dark)) (:foreground "#b0b1a3")))
-  "Nested delimiters face, depth 3."
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-4-face
-  '((((background light)) (:foreground "#709870"))
-    (((background dark)) (:foreground "#97b098")))
-  "Nested delimiters face, depth 4."
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-5-face
-  '((((background light)) (:foreground "#907373"))
-    (((background dark)) (:foreground "#aebed8")))
-  "Nested delimiters face, depth 5."
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-6-face
-  '((((background light)) (:foreground "#6276ba"))
-    (((background dark)) (:foreground "#b0b0b3")))
-  "Nested delimiters face, depth 6."
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-7-face
-  '((((background light)) (:foreground "#858580"))
-    (((background dark)) (:foreground "#90a890")))
-  "Nested delimiters face, depth 7."
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-8-face
-  '((((background light)) (:foreground "#80a880"))
-    (((background dark)) (:foreground "#a2b6da")))
-  "Nested delimiters face, depth 8."
-  :group 'rainbow-delimiters-faces)
-
-(defface rainbow-delimiters-depth-9-face
-  '((((background light)) (:foreground "#887070"))
-    (((background dark)) (:foreground "#9cb6ad")))
-  "Nested delimiters face, depth 9."
-  :group 'rainbow-delimiters-faces)
-
-;;; Faces 10+:
-;; NOTE: Currently unused. Additional faces for depths 10+ can be added on request.
+(eval-when-compile
+  (defmacro rainbow-delimiters--define-depth-faces ()
+    (let ((faces '())
+          (light-colors ["#707183" "#7388d6" "#909183" "#709870" "#907373"
+                         "#6276ba" "#858580" "#80a880" "#887070"])
+          (dark-colors ["grey55" "#93a8c6" "#b0b1a3" "#97b098" "#aebed8"
+                        "#b0b0b3" "#90a890" "#a2b6da" "#9cb6ad"]))
+      (dotimes (i 9)
+        (push `(defface ,(intern (format "rainbow-delimiters-depth-%d-face" (1+ i)))
+                 '((((class color) (background light)) :background ,(aref light-colors i))
+                   (((class color) (background dark)) :background ,(aref dark-colors i)))
+                 ,(format "Nested delimiter face, depth %d." (1+ i))
+                 :group 'rainbow-delimiters-faces)
+              faces))
+      `(progn ,@faces))))
+(rainbow-delimiters--define-depth-faces)
 
 (defconst rainbow-delimiters-max-face-count 9
   "Number of faces defined for highlighting delimiter levels.
