@@ -144,7 +144,7 @@ new value inclusive, a face `rainbow-delimiters-depth-N-face' is defined."
 
 This should be smaller than `rainbow-delimiters-max-face-count'."
   :type 'integer
-  :group 'rainbow-delimiters-faces)
+  :group 'rainbow-delimiters)
 
 
 (defun rainbow-delimiters--depth-face (depth)
