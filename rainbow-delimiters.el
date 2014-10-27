@@ -84,8 +84,8 @@
   "Faces for successively nested pairs of delimiters.
 
 When depth exceeds innermost defined face, colors cycle back through."
-  :tag "Color theme"
   :group 'rainbow-delimiters
+  :group 'faces
   :link '(custom-group-link "rainbow-delimiters")
   :prefix "rainbow-delimiters-")
 
