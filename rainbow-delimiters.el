@@ -129,10 +129,15 @@ Delimiters in this list are not highlighted."
       `(progn ,@faces))))
 (rainbow-delimiters--define-depth-faces)
 
-(defconst rainbow-delimiters-max-face-count 9
+(defcustom rainbow-delimiters-max-face-count 9
   "Number of faces defined for highlighting delimiter levels.
 
-Determines depth at which to cycle through faces again.")
+Determines depth at which to cycle through faces again.
+
+It's safe to change this variable provided that for all integers from 1 to the
+new value inclusive, a face `rainbow-delimiters-depth-N-face' is defined."
+  :type 'integer
+  :group 'rainbow-delimiters)
 
 (defcustom rainbow-delimiters-outermost-only-face-count 0
   "Number of faces to be used only for N outermost delimiter levels.
