@@ -240,5 +240,15 @@
                  7 8 (face (rainbow-delimiters-depth-1-face diff-added))
                  8 9 (face diff-added)))))))
 
+(ert-deftest blacklisted-contribute-to-depth ()
+  (let ((rainbow-delimiters-delimiter-blacklist '(?\( ?\))))
+    (with-temp-buffer-in-mode 'text-mode
+      (with-string (str "([])")
+        (should (ert-equal-including-properties
+                 (buffer-string)
+                 #("([])"
+                   1 2 (face (rainbow-delimiters-depth-2-face))
+                   2 3 (face (rainbow-delimiters-depth-2-face)))))))))
+
 (provide 'rainbow-delimiters-test)
 ;;; rainbow-delimiters-test.el ends here
