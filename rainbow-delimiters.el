@@ -171,15 +171,18 @@ For example: `rainbow-delimiters-depth-1-face'."
 
 LOC is the location of the character to add text properties to.
 DEPTH is the nested depth at LOC, which determines the face to use.
-MATCH is nil iff it's a mismatched closing delimiter."
-  (let ((delim-face (cond
-                     ((<= depth 0)
-                      'rainbow-delimiters-unmatched-face)
-                     ((not match)
-                      'rainbow-delimiters-mismatched-face)
-                     (t
-                      (rainbow-delimiters--depth-face depth)))))
-    (font-lock-prepend-text-property loc (1+ loc) 'face delim-face)))
+MATCH is nil iff it's a mismatched closing delimiter.
+
+The delimiter is not highlighted if it's a blacklisted delimiter."
+  (unless (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)
+    (let ((delim-face (cond
+                       ((<= depth 0)
+                        'rainbow-delimiters-unmatched-face)
+                       ((not match)
+                        'rainbow-delimiters-mismatched-face)
+                       (t
+                        (rainbow-delimiters--depth-face depth)))))
+      (font-lock-prepend-text-property loc (1+ loc) 'face delim-face))))
 
 (defvar rainbow-delimiters-escaped-char-predicate nil)
 (make-variable-buffer-local 'rainbow-delimiters-escaped-char-predicate)
@@ -214,8 +217,7 @@ DELIM-SYNTAX-CODE is the `car' of a raw syntax descriptor at LOC.
 Returns t if char at loc meets one of the following conditions:
 - Inside a string.
 - Inside a comment.
-- Is an escaped char, e.g. ?\)
-- Is a blacklisted character."
+- Is an escaped char, e.g. ?\)"
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
@@ -231,8 +233,7 @@ Returns t if char at loc meets one of the following conditions:
     (t
      nil))
    (when rainbow-delimiters-escaped-char-predicate
-     (funcall rainbow-delimiters-escaped-char-predicate loc))
-   (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)))
+     (funcall rainbow-delimiters-escaped-char-predicate loc))))
 
 (defconst rainbow-delimiters--delim-regex "\\s(\\|\\s)"
   "Regex matching all opening and closing delimiters the mode highlights.")
