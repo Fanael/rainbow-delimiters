@@ -171,18 +171,15 @@ For example: `rainbow-delimiters-depth-1-face'."
 
 LOC is the location of the character to add text properties to.
 DEPTH is the nested depth at LOC, which determines the face to use.
-MATCH is nil iff it's a mismatched closing delimiter.
-
-The delimiter is not highlighted if it's a blacklisted delimiter."
-  (unless (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)
-    (let ((delim-face (cond
-                       ((<= depth 0)
-                        'rainbow-delimiters-unmatched-face)
-                       ((not match)
-                        'rainbow-delimiters-mismatched-face)
-                       (t
-                        (rainbow-delimiters--depth-face depth)))))
-      (font-lock-prepend-text-property loc (1+ loc) 'face delim-face))))
+MATCH is nil iff it's a mismatched closing delimiter."
+  (let ((delim-face (cond
+                     ((<= depth 0)
+                      'rainbow-delimiters-unmatched-face)
+                     ((not match)
+                      'rainbow-delimiters-mismatched-face)
+                     (t
+                      (rainbow-delimiters--depth-face depth)))))
+    (font-lock-prepend-text-property loc (1+ loc) 'face delim-face)))
 
 (defvar rainbow-delimiters-escaped-char-predicate nil)
 (make-variable-buffer-local 'rainbow-delimiters-escaped-char-predicate)
@@ -191,10 +188,6 @@ The delimiter is not highlighted if it's a blacklisted delimiter."
   '((emacs-lisp-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
     (lisp-interaction-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
     (inferior-emacs-lisp-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
-    (lisp-mode . rainbow-delimiters--escaped-char-predicate-lisp)
-    (scheme-mode . rainbow-delimiters--escaped-char-predicate-lisp)
-    (clojure-mode . rainbow-delimiters--escaped-char-predicate-lisp)
-    (inferior-scheme-mode . rainbow-delimiters--escaped-char-predicate-lisp)
     ))
 
 (defun rainbow-delimiters--escaped-char-predicate-emacs-lisp (loc)
@@ -211,22 +204,16 @@ The delimiter is not highlighted if it's a blacklisted delimiter."
       (and (eq (char-before loc) ?\\) ; escaped char, e.g. ?\) - not counted
            (eq (char-before (1- loc)) ?\?))))
 
-(defun rainbow-delimiters--escaped-char-predicate-lisp (loc)
-  "Non-nil iff the character at LOC is escaped as per some generic Lisp rules."
-  (eq (char-before loc) ?\\))
-
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
-  "Return t if char at LOC should not be highlighted.
+  "Return non-nil if char at LOC should not be highlighted.
 PPSS is the `parse-partial-sexp' state at LOC.
 DELIM-SYNTAX-CODE is the `car' of a raw syntax descriptor at LOC.
-
-Returns t if char at loc meets one of the following conditions:
-- Inside a string.
-- Inside a comment.
-- Is an escaped char, e.g. ?\)"
+Characters are considered ineligible if they're in a string, in a comment or
+follows an escaping character as per the syntax table."
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
+   (nth 5 ppss)                ; escaped?
    ;; Note: no need to consider single-char openers, they're already handled
    ;; by looking at ppss.
    (cond
@@ -237,9 +224,14 @@ Returns t if char at loc meets one of the following conditions:
     ((/= 0 (logand #x20000 delim-syntax-code))
      (/= 0 (logand #x10000 (or (car (syntax-after (1- loc))) 0))))
     (t
-     nil))
-   (when rainbow-delimiters-escaped-char-predicate
-     (funcall rainbow-delimiters-escaped-char-predicate loc))))
+     nil))))
+
+(defun rainbow-delimiters--char-escaped-p (loc)
+  "Return non-nil if the character at LOC is escaped.
+`rainbow-delimiters-escaped-char-predicate' is used to determine if the
+character is escaped."
+  (when rainbow-delimiters-escaped-char-predicate
+    (funcall rainbow-delimiters-escaped-char-predicate loc)))
 
 (defvar rainbow-delimiters--syntax-ppss-cache nil)
 (make-variable-buffer-local 'rainbow-delimiters--syntax-ppss-cache)
@@ -278,7 +270,7 @@ FUNC is called with four arguments (DELIM-POS DELIM-SYNTAX PPSS DEPTH), where:
  - DEPTH is the value returned by the previous call to FUNC, or (max 0 (nth 0
    ppss)) if it's the first call.
 
-Ineligible delimiters are not filtered."
+Ineligible delimiters are skipped."
   (declare (indent defun))
   (let* ((ppss (syntax-ppss))
          (last-ppss-pos (point))
@@ -289,7 +281,8 @@ Ineligible delimiters are not filtered."
         (setq ppss (save-excursion
                      (parse-partial-sexp last-ppss-pos delim-pos nil nil ppss)))
         (setq last-ppss-pos delim-pos)
-        (setq depth (funcall func delim-pos delim-syntax ppss depth))))))
+        (unless (rainbow-delimiters--char-ineligible-p delim-pos ppss (car delim-syntax))
+          (setq depth (funcall func delim-pos delim-syntax ppss depth)))))))
 
 (defun rainbow-delimiters--category-propertize (end)
   "Ensure that `rainbow-delimiters-disabled-delim' category is set up to END."
@@ -298,9 +291,9 @@ Ineligible delimiters are not filtered."
       (save-excursion
         (goto-char (min (point) (1+ rainbow-delimiters--category-propertize-done)))
         (rainbow-delimiters--for-all-delimiters end
-          (lambda (delim-pos delim-syntax ppss _)
+          (lambda (delim-pos _delim-syntax _ppss _depth)
             (when (or
-                   (rainbow-delimiters--char-ineligible-p delim-pos ppss (car delim-syntax))
+                   (rainbow-delimiters--char-escaped-p delim-pos)
                    (memq (char-after delim-pos) rainbow-delimiters-delimiter-blacklist))
               (put-text-property delim-pos
                                  (1+ delim-pos)
@@ -317,21 +310,20 @@ cache and with the `rainbow-delimiters-disabled-delim' category armed."
         (parse-sexp-lookup-properties t))
     (rainbow-delimiters--for-all-delimiters end
       (lambda (delim-pos delim-syntax ppss depth)
-        (let ((delim-syntax-code (car delim-syntax)))
-          (cond
-           ((rainbow-delimiters--char-ineligible-p delim-pos ppss delim-syntax-code)
-            depth)
-           ((= 4 (logand #xFFFF delim-syntax-code))
-            (let ((new-depth (1+ depth)))
-              (rainbow-delimiters--apply-color delim-pos new-depth t)
-              new-depth))
-           (t
-            (let* ((opening-delim (char-after (nth 1 ppss)))
-                   (matching-p (eq opening-delim (cdr delim-syntax))))
-              (rainbow-delimiters--apply-color delim-pos depth matching-p)
-              ;; Don't let `depth' go negative, even if there's an unmatched
-              ;; delimiter.
-              (max 0 (1- depth)))))))))
+        (cond
+         ((rainbow-delimiters--char-escaped-p delim-pos)
+          depth)
+         ((= 4 (logand #xFFFF (car delim-syntax)))
+          (let ((new-depth (1+ depth)))
+            (rainbow-delimiters--apply-color delim-pos new-depth t)
+            new-depth))
+         (t
+          (let* ((opening-delim (char-after (nth 1 ppss)))
+                 (matching-p (eq opening-delim (cdr delim-syntax))))
+            (rainbow-delimiters--apply-color delim-pos depth matching-p)
+            ;; Don't let depth go negative, even if there's an unmatched
+            ;; delimiter.
+            (max 0 (1- depth))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
