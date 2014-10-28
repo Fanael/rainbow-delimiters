@@ -72,11 +72,16 @@
     (fontify-buffer)
     (buffer-string)))
 
+(defun buffer-string-without-uninteresting-properties ()
+  (remove-list-of-text-properties
+   (point-min) (point-max) '(category c-type syntax-table))
+  (buffer-string))
+
 (defun should-do-nothing (mode str)
   (with-temp-buffer-in-mode mode
     (with-string (str str)
       (should (ert-equal-including-properties
-               (buffer-string)
+               (buffer-string-without-uninteresting-properties)
                (fontify-without-rainbow-delimiters mode str))))))
 
 (ert-deftest can-enable-mode ()
@@ -95,7 +100,7 @@
      (with-temp-buffer-in-mode 'text-mode
        (with-string (str ,(format "%cfoo%c" opening closing))
          (should (ert-equal-including-properties
-                  (buffer-string)
+                  (buffer-string-without-uninteresting-properties)
                   (progn
                     (add-text-properties 0 1 '(face (rainbow-delimiters-depth-1-face)) str)
                     (add-text-properties 4 5 '(face (rainbow-delimiters-depth-1-face)) str)
@@ -110,7 +115,7 @@
      (with-temp-buffer-in-mode 'text-mode
        (with-string (str ,(format "%sfoo%s" (make-string 4 opening) (make-string 4 closing)))
          (should (ert-equal-including-properties
-                  (buffer-string)
+                  (buffer-string-without-uninteresting-properties)
                   (progn
                     (add-text-properties 0 1 '(face (rainbow-delimiters-depth-1-face)) str)
                     (add-text-properties 1 2 '(face (rainbow-delimiters-depth-2-face)) str)
@@ -130,7 +135,7 @@
   (with-temp-buffer-in-mode 'text-mode
     (with-string (str "([{(foo)}])")
       (should (ert-equal-including-properties
-               (buffer-string)
+               (buffer-string-without-uninteresting-properties)
                #("([{(foo)}])"
                  0 1 (face (rainbow-delimiters-depth-1-face))
                  1 2 (face (rainbow-delimiters-depth-2-face))
@@ -145,10 +150,7 @@
   (with-temp-buffer-in-mode 'c++-mode
     (with-string (str "foo<int> x;")
       (should (ert-equal-including-properties
-               (progn
-                 (remove-list-of-text-properties
-                  (point-min) (point-max) '(category c-type syntax-table))
-                 (buffer-string))
+               (buffer-string-without-uninteresting-properties)
                #("foo<int> x;"
                  0 3 (face font-lock-type-face)
                  3 4 (face (rainbow-delimiters-depth-1-face))
@@ -175,7 +177,7 @@
   (with-temp-buffer-in-mode 'emacs-lisp-mode
     (with-string (str ")")
       (should (ert-equal-including-properties
-               (buffer-string)
+               (buffer-string-without-uninteresting-properties)
                #(")"
                  0 1 (face (rainbow-delimiters-unmatched-face))))))))
 
@@ -183,7 +185,7 @@
   (with-temp-buffer-in-mode 'emacs-lisp-mode
     (with-string (str "(]")
       (should (ert-equal-including-properties
-               (buffer-string)
+               (buffer-string-without-uninteresting-properties)
                #("(]"
                  0 1 (face (rainbow-delimiters-depth-1-face))
                  1 2 (face (rainbow-delimiters-mismatched-face))))))))
@@ -196,7 +198,7 @@
   (with-temp-buffer-in-mode 'emacs-lisp-mode
     (with-string (str "(bar ?\\( ?( (foo?))")
       (should (ert-equal-including-properties
-               (buffer-string)
+               (buffer-string-without-uninteresting-properties)
                #("(bar ?\\( ?( (foo?))"
                  0 1
                  (face (rainbow-delimiters-depth-1-face))
@@ -212,7 +214,7 @@
     (with-temp-buffer-in-mode 'text-mode
       (with-string (str "(((())))")
         (should (ert-equal-including-properties
-                 (buffer-string)
+                 (buffer-string-without-uninteresting-properties)
                  #("(((())))"
                    0 1 (face (rainbow-delimiters-depth-1-face))
                    1 2 (face (rainbow-delimiters-depth-2-face))
@@ -229,7 +231,7 @@
     (with-temp-buffer-in-mode 'text-mode
       (with-string (str "(((())))")
         (should (ert-equal-including-properties
-                 (buffer-string)
+                 (buffer-string-without-uninteresting-properties)
                  #("(((())))"
                    0 1 (face (rainbow-delimiters-depth-1-face))
                    1 2 (face (rainbow-delimiters-depth-2-face))
@@ -244,7 +246,7 @@
   (with-temp-buffer-in-mode 'diff-mode
     (with-string (str "+ foo ()\n")
       (should (ert-equal-including-properties
-               (buffer-string)
+               (buffer-string-without-uninteresting-properties)
                #("+ foo ()\n"
                  0 1 (face diff-indicator-added)
                  1 6 (face diff-added)
@@ -252,15 +254,15 @@
                  7 8 (face (rainbow-delimiters-depth-1-face diff-added))
                  8 9 (face diff-added)))))))
 
-(ert-deftest blacklisted-contribute-to-depth ()
+(ert-deftest blacklisted-dont-contribute-to-depth ()
   (let ((rainbow-delimiters-delimiter-blacklist '(?\( ?\))))
     (with-temp-buffer-in-mode 'text-mode
       (with-string (str "([])")
         (should (ert-equal-including-properties
-                 (buffer-string)
+                 (buffer-string-without-uninteresting-properties)
                  #("([])"
-                   1 2 (face (rainbow-delimiters-depth-2-face))
-                   2 3 (face (rainbow-delimiters-depth-2-face)))))))))
+                   1 2 (face (rainbow-delimiters-depth-1-face))
+                   2 3 (face (rainbow-delimiters-depth-1-face)))))))))
 
 (provide 'rainbow-delimiters-test)
 ;;; rainbow-delimiters-test.el ends here
