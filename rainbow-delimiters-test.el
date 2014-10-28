@@ -193,7 +193,19 @@
     (should-do-nothing 'text-mode "(((())))")))
 
 (ert-deftest doesnt-highlight-escaped-delimiters ()
-  (should-do-nothing 'emacs-lisp-mode "?\("))
+  (with-temp-buffer-in-mode 'emacs-lisp-mode
+    (with-string (str "(bar ?\\( ?( (foo?))")
+      (should (ert-equal-including-properties
+               (buffer-string)
+               #("(bar ?\\( ?( (foo?))"
+                 0 1
+                 (face (rainbow-delimiters-depth-1-face))
+                 12 13
+                 (face (rainbow-delimiters-depth-2-face))
+                 17 18
+                 (face (rainbow-delimiters-depth-2-face))
+                 18 19
+                 (face (rainbow-delimiters-depth-1-face))))))))
 
 (ert-deftest cycles-faces ()
   (let ((rainbow-delimiters-max-face-count 2))
