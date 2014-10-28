@@ -201,7 +201,13 @@ The delimiter is not highlighted if it's a blacklisted delimiter."
   "Non-nil iff the character at LOC is escaped as per Emacs Lisp rules."
   (or (and (eq (char-before loc) ?\?) ; e.g. ?) - deprecated, but people use it
            (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
-                     (eq (char-before (- loc 2)) ?\?))))
+                     (eq (char-before (- loc 2)) ?\?)))
+           ;; Treat the ? as a quote character only when it starts a symbol, so
+           ;; we're not confused by (foo?), which is a valid function call.
+           (let ((inhibit-changing-match-data t))
+             (save-excursion
+               (goto-char (1- loc))
+               (looking-at "\\_<"))))
       (and (eq (char-before loc) ?\\) ; escaped char, e.g. ?\) - not counted
            (eq (char-before (1- loc)) ?\?))))
 
