@@ -268,40 +268,20 @@ Returns t if char at loc meets one of the following conditions:
 (defconst rainbow-delimiters--delim-regex "\\s(\\|\\s)"
   "Regex matching all opening and closing delimiters the mode highlights.")
 
-(defun rainbow-delimiters--category-propertize (end)
-  "Ensure that `rainbow-delimiters-disabled-delim' category is set up to END."
-  (when (< rainbow-delimiters--category-propertize-done end)
-    (let ((inhibit-point-motion-hooks t))
-      (save-excursion
-        (goto-char (min (point) (1+ rainbow-delimiters--category-propertize-done)))
-        (let ((ppss (syntax-ppss))
-              (last-ppss-pos (point)))
-          (while (re-search-forward rainbow-delimiters--delim-regex end t)
-            (let* ((delim-pos (match-beginning 0))
-                   (delim-syntax (syntax-after delim-pos)))
-              (setq ppss (save-excursion
-                           (parse-partial-sexp last-ppss-pos delim-pos nil nil ppss)))
-              (setq last-ppss-pos delim-pos)
-              (when (or
-                     (rainbow-delimiters--char-ineligible-p delim-pos ppss (car delim-syntax))
-                     (memq (char-after delim-pos) rainbow-delimiters-delimiter-blacklist))
-                (put-text-property delim-pos
-                                   (1+ delim-pos)
-                                   'category
-                                   'rainbow-delimiters-disabled-delim)))))))
-    (setq rainbow-delimiters--category-propertize-done end)))
+(defun rainbow-delimiters--for-all-delimiters (end func)
+  "For all delimiters between point and END, call FUNC.
 
-(defun rainbow-delimiters--face-propertize* (end)
-  "Apply faces to the eligible delimiters between point and END.
+FUNC is called with four arguments (DELIM-POS DELIM-SYNTAX PPSS DEPTH), where:
+ - DELIM-POS is the position of the delimiter.
+ - DELIM-SYNTAX is the raw syntax descriptor of the character at DELIM-POS.
+ - PPSS is the `parse-partial-sexp' state at DELIM-POS.
+ - DEPTH is the value returned by the previous call to FUNC, or (max 0 (nth 0
+   ppss)) if it's the first call.
 
-Should always be called with the `syntax-ppss' using our internal version of the
-cache and with the `rainbow-delimiters-disabled-delim' category armed."
-  (let* ((inhibit-point-motion-hooks t)
-         (parse-sexp-lookup-properties t)
-         ;; Point can be anywhere in buffer; determine the nesting depth at point.
+Ineligible delimiters are not filtered."
+  (declare (indent defun))
+  (let* ((ppss (syntax-ppss))
          (last-ppss-pos (point))
-         (ppss (syntax-ppss))
-         ;; Ignore negative depths created by unmatched closing delimiters.
          (depth (max 0 (nth 0 ppss))))
     (while (re-search-forward rainbow-delimiters--delim-regex end t)
       (let* ((delim-pos (match-beginning 0))
@@ -309,22 +289,49 @@ cache and with the `rainbow-delimiters-disabled-delim' category armed."
         (setq ppss (save-excursion
                      (parse-partial-sexp last-ppss-pos delim-pos nil nil ppss)))
         (setq last-ppss-pos delim-pos)
-        (unless (rainbow-delimiters--char-ineligible-p delim-pos ppss (car delim-syntax))
-          (if (= 4 (logand #xFFFF (car delim-syntax)))
-              (progn
-                (setq depth (1+ depth))
-                (rainbow-delimiters--apply-color delim-pos
-                                                 depth
-                                                 t))
-            ;; Not an opening delimiter, so it's a closing delimiter.
-            (let ((matching-opening-delim (char-after (nth 1 ppss))))
-              (rainbow-delimiters--apply-color delim-pos
-                                               depth
-                                               (eq (cdr delim-syntax)
-                                                   matching-opening-delim))
+        (setq depth (funcall func delim-pos delim-syntax ppss depth))))))
+
+(defun rainbow-delimiters--category-propertize (end)
+  "Ensure that `rainbow-delimiters-disabled-delim' category is set up to END."
+  (when (< rainbow-delimiters--category-propertize-done end)
+    (let ((inhibit-point-motion-hooks t))
+      (save-excursion
+        (goto-char (min (point) (1+ rainbow-delimiters--category-propertize-done)))
+        (rainbow-delimiters--for-all-delimiters end
+          (lambda (delim-pos delim-syntax ppss _)
+            (when (or
+                   (rainbow-delimiters--char-ineligible-p delim-pos ppss (car delim-syntax))
+                   (memq (char-after delim-pos) rainbow-delimiters-delimiter-blacklist))
+              (put-text-property delim-pos
+                                 (1+ delim-pos)
+                                 'category
+                                 'rainbow-delimiters-disabled-delim))))))
+    (setq rainbow-delimiters--category-propertize-done end)))
+
+(defun rainbow-delimiters--face-propertize* (end)
+  "Apply faces to the eligible delimiters between point and END.
+
+Should always be called with the `syntax-ppss' using our internal version of the
+cache and with the `rainbow-delimiters-disabled-delim' category armed."
+  (let ((inhibit-point-motion-hooks t)
+        (parse-sexp-lookup-properties t))
+    (rainbow-delimiters--for-all-delimiters end
+      (lambda (delim-pos delim-syntax ppss depth)
+        (let ((delim-syntax-code (car delim-syntax)))
+          (cond
+           ((rainbow-delimiters--char-ineligible-p delim-pos ppss delim-syntax-code)
+            depth)
+           ((= 4 (logand #xFFFF delim-syntax-code))
+            (let ((new-depth (1+ depth)))
+              (rainbow-delimiters--apply-color delim-pos new-depth t)
+              new-depth))
+           (t
+            (let* ((opening-delim (char-after (nth 1 ppss)))
+                   (matching-p (eq opening-delim (cdr delim-syntax))))
+              (rainbow-delimiters--apply-color delim-pos depth matching-p)
               ;; Don't let `depth' go negative, even if there's an unmatched
               ;; delimiter.
-              (setq depth (max 0 (1- depth)))))))))
+              (max 0 (1- depth)))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
