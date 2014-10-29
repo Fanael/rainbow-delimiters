@@ -277,5 +277,17 @@
                2 3 (face (rainbow-delimiters-depth-2-face))
                3 4 (face (rainbow-delimiters-depth-1-face)))))))
 
+(ert-deftest syntax-table-entries-dont-work-when-blacklisted ()
+  (let ((rainbow-delimiters-delimiter-blacklist '(?a ?b)))
+    (with-temp-buffer-in-mode 'emacs-lisp-mode
+      (with-string (str #("(ab)"
+                          1 2 (syntax-table (4 . ?b))
+                          2 3 (syntax-table (5 . ?a))))
+        (should (ert-equal-including-properties
+                 (buffer-string-without-uninteresting-properties)
+                 #("(ab)"
+                   0 1 (face (rainbow-delimiters-depth-1-face))
+                   3 4 (face (rainbow-delimiters-depth-1-face)))))))))
+
 (provide 'rainbow-delimiters-test)
 ;;; rainbow-delimiters-test.el ends here
