@@ -192,17 +192,15 @@ MATCH is nil iff it's a mismatched closing delimiter."
 
 (defun rainbow-delimiters--escaped-char-predicate-emacs-lisp (loc)
   "Non-nil iff the character at LOC is escaped as per Emacs Lisp rules."
-  (or (and (eq (char-before loc) ?\?) ; e.g. ?) - deprecated, but people use it
-           (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
-                     (eq (char-before (- loc 2)) ?\?)))
-           ;; Treat the ? as a quote character only when it starts a symbol, so
-           ;; we're not confused by (foo?), which is a valid function call.
-           (let ((inhibit-changing-match-data t))
-             (save-excursion
-               (goto-char (1- loc))
-               (looking-at "\\_<"))))
-      (and (eq (char-before loc) ?\\) ; escaped char, e.g. ?\) - not counted
-           (eq (char-before (1- loc)) ?\?))))
+  (and (eq (char-before loc) ?\?)      ; e.g. ?) - deprecated, but people use it
+       (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
+                 (eq (char-before (- loc 2)) ?\?)))
+       ;; Treat the ? as a quote character only when it starts a symbol, so
+       ;; we're not confused by (foo?), which is a valid function call.
+       (let ((inhibit-changing-match-data t))
+         (save-excursion
+           (goto-char (1- loc))
+           (looking-at "\\_<")))))
 
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
   "Return non-nil if char at LOC should not be highlighted.
