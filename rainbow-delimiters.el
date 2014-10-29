@@ -311,8 +311,6 @@ cache and with the `rainbow-delimiters-disabled-delim' category armed."
     (rainbow-delimiters--for-all-delimiters end
       (lambda (delim-pos delim-syntax ppss depth)
         (cond
-         ((rainbow-delimiters--char-escaped-p delim-pos)
-          depth)
          ((= 4 (logand #xFFFF (car delim-syntax)))
           (let ((new-depth (1+ depth)))
             (rainbow-delimiters--apply-color delim-pos new-depth t)
