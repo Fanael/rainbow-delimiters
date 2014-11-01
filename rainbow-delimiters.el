@@ -191,29 +191,19 @@ The delimiter is not highlighted if it's a blacklisted delimiter."
   '((emacs-lisp-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
     (lisp-interaction-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
     (inferior-emacs-lisp-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
-    (lisp-mode . rainbow-delimiters--escaped-char-predicate-lisp)
-    (scheme-mode . rainbow-delimiters--escaped-char-predicate-lisp)
-    (clojure-mode . rainbow-delimiters--escaped-char-predicate-lisp)
-    (inferior-scheme-mode . rainbow-delimiters--escaped-char-predicate-lisp)
     ))
 
 (defun rainbow-delimiters--escaped-char-predicate-emacs-lisp (loc)
   "Non-nil iff the character at LOC is escaped as per Emacs Lisp rules."
-  (or (and (eq (char-before loc) ?\?) ; e.g. ?) - deprecated, but people use it
-           (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
-                     (eq (char-before (- loc 2)) ?\?)))
-           ;; Treat the ? as a quote character only when it starts a symbol, so
-           ;; we're not confused by (foo?), which is a valid function call.
-           (let ((inhibit-changing-match-data t))
-             (save-excursion
-               (goto-char (1- loc))
-               (looking-at "\\_<"))))
-      (and (eq (char-before loc) ?\\) ; escaped char, e.g. ?\) - not counted
-           (eq (char-before (1- loc)) ?\?))))
-
-(defun rainbow-delimiters--escaped-char-predicate-lisp (loc)
-  "Non-nil iff the character at LOC is escaped as per some generic Lisp rules."
-  (eq (char-before loc) ?\\))
+  (and (eq (char-before loc) ?\?) ; e.g. ?) - deprecated, but people use it
+       (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
+                 (eq (char-before (- loc 2)) ?\?)))
+       ;; Treat the ? as a quote character only when it starts a symbol, so
+       ;; we're not confused by (foo?), which is a valid function call.
+       (let ((inhibit-changing-match-data t))
+         (save-excursion
+           (goto-char (1- loc))
+           (looking-at "\\_<")))))
 
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
   "Return t if char at LOC should not be highlighted.
@@ -227,6 +217,7 @@ Returns t if char at loc meets one of the following conditions:
   (or
    (nth 3 ppss)                ; inside string?
    (nth 4 ppss)                ; inside comment?
+   (nth 5 ppss)                ; escaped according to the syntax table?
    ;; Note: no need to consider single-char openers, they're already handled
    ;; by looking at ppss.
    (cond
