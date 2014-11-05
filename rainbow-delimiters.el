@@ -184,27 +184,6 @@ The delimiter is not highlighted if it's a blacklisted delimiter."
                         (rainbow-delimiters--depth-face depth)))))
       (font-lock-prepend-text-property loc (1+ loc) 'face delim-face))))
 
-(defvar rainbow-delimiters-escaped-char-predicate nil)
-(make-variable-buffer-local 'rainbow-delimiters-escaped-char-predicate)
-
-(defvar rainbow-delimiters-escaped-char-predicate-list
-  '((emacs-lisp-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
-    (lisp-interaction-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
-    (inferior-emacs-lisp-mode . rainbow-delimiters--escaped-char-predicate-emacs-lisp)
-    ))
-
-(defun rainbow-delimiters--escaped-char-predicate-emacs-lisp (loc)
-  "Non-nil iff the character at LOC is escaped as per Emacs Lisp rules."
-  (and (eq (char-before loc) ?\?) ; e.g. ?) - deprecated, but people use it
-       (not (and (eq (char-before (1- loc)) ?\\) ; special case: ignore ?\?
-                 (eq (char-before (- loc 2)) ?\?)))
-       ;; Treat the ? as a quote character only when it starts a symbol, so
-       ;; we're not confused by (foo?), which is a valid function call.
-       (let ((inhibit-changing-match-data t))
-         (save-excursion
-           (goto-char (1- loc))
-           (looking-at "\\_<")))))
-
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
   "Return t if char at LOC should not be highlighted.
 PPSS is the `parse-partial-sexp' state at LOC.
@@ -228,9 +207,7 @@ Returns t if char at loc meets one of the following conditions:
     ((/= 0 (logand #x20000 delim-syntax-code))
      (/= 0 (logand #x10000 (or (car (syntax-after (1- loc))) 0))))
     (t
-     nil))
-   (when rainbow-delimiters-escaped-char-predicate
-     (funcall rainbow-delimiters-escaped-char-predicate loc))))
+     nil))))
 
 (defconst rainbow-delimiters--delim-regex "\\s(\\|\\s)"
   "Regex matching all opening and closing delimiters the mode highlights.")
@@ -240,8 +217,6 @@ Returns t if char at loc meets one of the following conditions:
   "Highlight delimiters in region between point and END.
 
 Used by font-lock for dynamic highlighting."
-  (setq rainbow-delimiters-escaped-char-predicate
-        (cdr (assoc major-mode rainbow-delimiters-escaped-char-predicate-list)))
   (let* ((inhibit-point-motion-hooks t)
          ;; Point can be anywhere in buffer; determine the nesting depth at point.
          (last-ppss-pos (point))
