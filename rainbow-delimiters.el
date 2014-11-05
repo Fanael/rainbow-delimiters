@@ -229,22 +229,20 @@ Used by font-lock for dynamic highlighting."
         (setq ppss (save-excursion
                      (parse-partial-sexp last-ppss-pos delim-pos nil nil ppss)))
         (setq last-ppss-pos delim-pos)
-        (unless (rainbow-delimiters--char-ineligible-p delim-pos ppss (car delim-syntax))
-          (if (= 4 (logand #xFFFF (car delim-syntax)))
-              (progn
-                (setq depth (1+ depth))
-                (rainbow-delimiters--apply-color delim-pos
-                                                 depth
-                                                 t))
+        (let ((delim-syntax-code (car delim-syntax)))
+          (cond
+           ((rainbow-delimiters--char-ineligible-p delim-pos ppss delim-syntax-code)
+            nil)
+           ((= 4 (logand #xFFFF delim-syntax-code))
+            (setq depth (1+ depth))
+            (rainbow-delimiters--apply-color delim-pos depth t))
+           (t
             ;; Not an opening delimiter, so it's a closing delimiter.
-            (let ((matching-opening-delim (char-after (nth 1 ppss))))
-              (rainbow-delimiters--apply-color delim-pos
-                                               depth
-                                               (eq (cdr delim-syntax)
-                                                   matching-opening-delim))
+            (let ((matches-p (eq (cdr delim-syntax) (char-after (nth 1 ppss)))))
+              (rainbow-delimiters--apply-color delim-pos depth matches-p)
               ;; Don't let `depth' go negative, even if there's an unmatched
               ;; delimiter.
-              (setq depth (max 0 (1- depth)))))))))
+              (setq depth (max 0 (1- depth))))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
