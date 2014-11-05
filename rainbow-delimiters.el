@@ -218,11 +218,8 @@ Returns t if char at loc meets one of the following conditions:
 
 Used by font-lock for dynamic highlighting."
   (let* ((inhibit-point-motion-hooks t)
-         ;; Point can be anywhere in buffer; determine the nesting depth at point.
          (last-ppss-pos (point))
-         (ppss (syntax-ppss))
-         ;; Ignore negative depths created by unmatched closing delimiters.
-         (depth (max 0 (nth 0 ppss))))
+         (ppss (syntax-ppss)))
     (while (re-search-forward rainbow-delimiters--delim-regex end t)
       (let* ((delim-pos (match-beginning 0))
              (delim-syntax (syntax-after delim-pos)))
@@ -234,15 +231,13 @@ Used by font-lock for dynamic highlighting."
            ((rainbow-delimiters--char-ineligible-p delim-pos ppss delim-syntax-code)
             nil)
            ((= 4 (logand #xFFFF delim-syntax-code))
-            (setq depth (1+ depth))
-            (rainbow-delimiters--apply-color delim-pos depth t))
+            ;; The (1+ ...) is needed because `parse-partial-sexp' returns the
+            ;; depth at the opening delimiter, not in the block being started.
+            (rainbow-delimiters--apply-color delim-pos (1+ (nth 0 ppss)) t))
            (t
             ;; Not an opening delimiter, so it's a closing delimiter.
             (let ((matches-p (eq (cdr delim-syntax) (char-after (nth 1 ppss)))))
-              (rainbow-delimiters--apply-color delim-pos depth matches-p)
-              ;; Don't let `depth' go negative, even if there's an unmatched
-              ;; delimiter.
-              (setq depth (max 0 (1- depth))))))))))
+              (rainbow-delimiters--apply-color delim-pos (nth 0 ppss) matches-p))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
