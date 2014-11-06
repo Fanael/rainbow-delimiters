@@ -255,17 +255,23 @@ Used by font-lock for dynamic highlighting."
   (when rainbow-delimiters-mode
     (font-lock-add-keywords nil rainbow-delimiters--font-lock-keywords 'append)
     (set (make-local-variable 'jit-lock-contextually) t)
-    ;; `syntax-begin-function' may break the assumption we rely on that
-    ;; `syntax-ppss' is exactly equivalent to `parse-partial-sexp' from
-    ;; `point-min'. Just don't use it, the performance hit should be negligible.
-    (set (make-local-variable 'syntax-begin-function) nil)
-    ;; Obsolete equivalent of `syntax-begin-function'.
-    (when (boundp 'font-lock-beginning-of-syntax-function)
-      (with-no-warnings
-        (set (make-local-variable 'font-lock-beginning-of-syntax-function) nil)))
-    ;; We modified `syntax-begin-function', so flush the cache to avoid getting
-    ;; cached values that used the old value.
-    (syntax-ppss-flush-cache 0))
+    (let ((flush-needed nil))
+      (when syntax-begin-function
+        ;; `syntax-begin-function' may break the assumption we rely on that
+        ;; `syntax-ppss' is exactly equivalent to `parse-partial-sexp' from
+        ;; `point-min'. Just don't use it, the performance hit should be
+        ;; negligible.
+        (setq flush-needed t)
+        (set (make-local-variable 'syntax-begin-function) nil))
+      ;; Obsolete equivalent of `syntax-begin-function'.
+      (when (bound-and-true-p font-lock-beginning-of-syntax-function)
+        (setq flush-needed t)
+        (with-no-warnings
+          (set (make-local-variable 'font-lock-beginning-of-syntax-function) nil)))
+      (when flush-needed
+        ;; We modified `syntax-begin-function', so flush the cache to avoid
+        ;; getting cached values that used the old value.
+        (syntax-ppss-flush-cache 0))))
   (when font-lock-mode
     (if (fboundp 'font-lock-flush)
         (font-lock-flush)
