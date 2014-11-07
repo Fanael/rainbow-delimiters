@@ -71,8 +71,6 @@
 
 ;;; Code:
 
-;;; Customize interface:
-
 (defgroup rainbow-delimiters nil
   "Highlight nested parentheses, brackets, and braces according to their depth."
   :prefix "rainbow-delimiters-"
@@ -96,8 +94,6 @@ Delimiters in this list are not highlighted."
   :tag "Delimiter Blacklist"
   :type '(repeat character)
   :group 'rainbow-delimiters)
-
-;;; Faces:
 
 (defface rainbow-delimiters-unmatched-face
   '((((background light)) (:foreground "#88090B"))
