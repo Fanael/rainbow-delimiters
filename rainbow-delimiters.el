@@ -266,8 +266,7 @@ Used by font-lock for dynamic highlighting."
       ;; Obsolete equivalent of `syntax-begin-function'.
       (when (bound-and-true-p font-lock-beginning-of-syntax-function)
         (setq flush-needed t)
-        (with-no-warnings
-          (set (make-local-variable 'font-lock-beginning-of-syntax-function) nil)))
+        (set (make-local-variable 'font-lock-beginning-of-syntax-function) nil))
       (when flush-needed
         ;; We modified `syntax-begin-function', so flush the cache to avoid
         ;; getting cached values that used the old value.
