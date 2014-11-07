@@ -99,14 +99,12 @@ Delimiters in this list are not highlighted."
 
 ;;; Faces:
 
-;; Unmatched delimiter face:
 (defface rainbow-delimiters-unmatched-face
   '((((background light)) (:foreground "#88090B"))
     (((background dark)) (:foreground "#88090B")))
   "Face to highlight unmatched closing delimiters in."
   :group 'rainbow-delimiters-faces)
 
-;; Mismatched delimiter face:
 (defface rainbow-delimiters-mismatched-face
   '((t :inherit rainbow-delimiters-unmatched-face))
   "Face to highlight mismatched closing delimiters in."
