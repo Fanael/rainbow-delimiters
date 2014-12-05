@@ -28,18 +28,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary:
-;;
-;; Rainbow-delimiters is a "rainbow parentheses"-like mode which highlights
-;; parentheses, brackets, and braces according to their depth. Each
-;; successive level is highlighted in a different color. This makes it easy
-;; to spot matching delimiters, orient yourself in the code, and tell which
-;; statements are at a given level.
-;;
-;; Great care has been taken to make this mode fast. You shouldn't see
-;; any discernible change in scrolling or editing speed while using it,
-;; even in delimiter-rich languages like Clojure, Lisp, and Scheme.
-
 ;;; Installation:
 
 ;; The recommended way is to use MELPA (http://melpa.org/) or MELPA Stable
@@ -57,6 +45,18 @@
 ;; To start the mode automatically in most programming modes (Emacs 24 and
 ;; above):
 ;;   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;;; Commentary:
+;;
+;; Rainbow-delimiters is a "rainbow parentheses"-like mode which highlights
+;; parentheses, brackets, and braces according to their depth. Each
+;; successive level is highlighted in a different color. This makes it easy
+;; to spot matching delimiters, orient yourself in the code, and tell which
+;; statements are at a given level.
+;;
+;; Great care has been taken to make this mode fast. You shouldn't see
+;; any discernible change in scrolling or editing speed while using it,
+;; even in delimiter-rich languages like Clojure, Lisp, and Scheme.
 
 ;;; Customization:
 
