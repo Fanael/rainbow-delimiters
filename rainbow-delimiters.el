@@ -36,15 +36,6 @@
 ;; Otherwise, open `rainbow-delimiters.el' in Emacs and use
 ;;   M-x package-install-from-buffer
 ;; Any other methods of installation are unsupported.
-;;
-;; To toggle the mode in the current buffer:
-;;   M-x rainbow-delimiters-mode
-;; To start the mode automatically in `foo-mode', add the following to your init
-;; file:
-;;   (add-hook 'foo-mode-hook #'rainbow-delimiters-mode)
-;; To start the mode automatically in most programming modes (Emacs 24 and
-;; above):
-;;   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
 ;;; Commentary:
 ;;
@@ -57,9 +48,20 @@
 ;; Great care has been taken to make this mode fast. You shouldn't see
 ;; any discernible change in scrolling or editing speed while using it,
 ;; even in delimiter-rich languages like Clojure, Lisp, and Scheme.
-
-;;; Customization:
-
+;;
+;; Usage:
+;;
+;; To toggle the mode in the current buffer:
+;;   M-x rainbow-delimiters-mode
+;; To start the mode automatically in `foo-mode', add the following to your init
+;; file:
+;;   (add-hook 'foo-mode-hook #'rainbow-delimiters-mode)
+;; To start the mode automatically in most programming modes (Emacs 24 and
+;; above):
+;;   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+;;
+;; Customization:
+;;
 ;; To customize various options, including the color theme:
 ;;   M-x customize-group rainbow-delimiters
 ;;
