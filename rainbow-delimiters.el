@@ -1,4 +1,4 @@
-;;; rainbow-delimiters.el --- Highlight nested brackets a different color at each depth -*- lexical-binding: t -*-
+;;; rainbow-delimiters.el --- Highlight brackets according to their each depth -*- lexical-binding: t -*-
 
 ;; Copyright (C)
 ;;   2010-2013 Jeremy Rayman
