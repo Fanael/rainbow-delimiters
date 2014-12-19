@@ -188,10 +188,6 @@
                  0 1 (face (rainbow-delimiters-depth-1-face))
                  1 2 (face (rainbow-delimiters-mismatched-face))))))))
 
-(ert-deftest doesnt-highlighlight-disabled-delimiters ()
-  (let ((rainbow-delimiters-delimiter-blacklist '(?\( ?\))))
-    (should-do-nothing 'text-mode "(((())))")))
-
 (ert-deftest doesnt-highlight-escaped-delimiters ()
   (with-temp-buffer-in-mode 'emacs-lisp-mode
     (with-string (str "(bar ?\\( (foo?))")
@@ -252,19 +248,9 @@
                  7 8 (face (rainbow-delimiters-depth-1-face diff-added))
                  8 9 (face diff-added)))))))
 
-(ert-deftest blacklisted-contribute-to-depth ()
-  (let ((rainbow-delimiters-delimiter-blacklist '(?\( ?\))))
-    (with-temp-buffer-in-mode 'text-mode
-      (with-string (str "([])")
-        (should (ert-equal-including-properties
-                 (buffer-string)
-                 #("([])"
-                   1 2 (face (rainbow-delimiters-depth-2-face))
-                   2 3 (face (rainbow-delimiters-depth-2-face)))))))))
-
 (ert-deftest can-customize-face-picker ()
   (let ((rainbow-delimiters-pick-face-function
-         (lambda (_depth _loc _match)
+         (lambda (_depth _match _loc)
            'font-lock-keyword-face)))
     (with-temp-buffer-in-mode 'emacs-lisp-mode
       (with-string (str "(())")
@@ -275,6 +261,26 @@
                    1 2 (face (font-lock-keyword-face))
                    2 3 (face (font-lock-keyword-face))
                    3 4 (face (font-lock-keyword-face)))))))))
+
+(ert-deftest face-picker-can-disable-highlighting ()
+  (let ((rainbow-delimiters-pick-face-function
+         (lambda (depth match loc)
+           (unless (memq (char-after loc) '(?\( ?\)))
+             (rainbow-delimiters-default-pick-face depth match loc)))))
+    (should-do-nothing 'text-mode "(((())))")))
+
+(ert-deftest delimiters-disabled-by-face-picker-contribute-to-depth ()
+  (let ((rainbow-delimiters-pick-face-function
+         (lambda (depth match loc)
+           (unless (memq (char-after loc) '(?\( ?\)))
+             (rainbow-delimiters-default-pick-face depth match loc)))))
+    (with-temp-buffer-in-mode 'text-mode
+      (with-string (str "([])")
+        (should (ert-equal-including-properties
+                 (buffer-string)
+                 #("([])"
+                   1 2 (face (rainbow-delimiters-depth-2-face))
+                   2 3 (face (rainbow-delimiters-depth-2-face)))))))))
 
 (provide 'rainbow-delimiters-test)
 ;;; rainbow-delimiters-test.el ends here
