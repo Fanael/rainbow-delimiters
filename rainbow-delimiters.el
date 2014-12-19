@@ -89,15 +89,6 @@ When depth exceeds innermost defined face, colors cycle back through."
   :link '(custom-group-link "rainbow-delimiters")
   :prefix "rainbow-delimiters-")
 
-(defcustom rainbow-delimiters-delimiter-blacklist '()
-  "Unused variable pending removal.
-To prevent highlighting of certain delimiters, use
-`rainbow-delimiters-pick-face-function' instead."
-  :group 'rainbow-delimiters)
-(make-obsolete-variable 'rainbow-delimiters-delimiter-blacklist
-                        'rainbow-delimiters-pick-face-function
-                        "2.1")
-
 (defcustom rainbow-delimiters-pick-face-function
   #'rainbow-delimiters-default-pick-face
   "The function used to pick a face used to highlight a delimiter.
