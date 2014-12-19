@@ -97,6 +97,21 @@ Delimiters in this list are not highlighted."
   :type '(repeat character)
   :group 'rainbow-delimiters)
 
+(defcustom rainbow-delimiters-pick-face-function
+  #'rainbow-delimiters-default-pick-face
+  "The function used to pick a face used to highlight a delimiter.
+The function should take three arguments (DEPTH MATCH LOC), where:
+  - DEPTH is the delimiter depth; when zero or negative, it's an unmatched
+    delimiter.
+  - MATCH is nil iff the delimiter is a mismatched closing delimiter.
+  - LOC is the location of the delimiter.
+The function should return a value suitable to use as a value of the `face' text
+property, or nil, in which case the delimiter is not highlighted.
+The function should not move the point or mark or change the match data."
+  :tag "Pick face function"
+  :type 'function
+  :group 'rainbow-delimiters)
+
 (defface rainbow-delimiters-unmatched-face
   '((((background light)) (:foreground "#88090B"))
     (((background dark)) (:foreground "#88090B")))
@@ -143,24 +158,35 @@ This should be smaller than `rainbow-delimiters-max-face-count'."
   :group 'rainbow-delimiters)
 
 
-(defun rainbow-delimiters--depth-face (depth)
-  "Return face name for DEPTH as a symbol 'rainbow-delimiters-depth-DEPTH-face'.
+(defun rainbow-delimiters-default-pick-face (depth match _loc)
+  "Return a face name appropriate for nesting depth DEPTH.
+DEPTH and MATCH are as in `rainbow-delimiters-pick-face-function'.
 
-For example: `rainbow-delimiters-depth-1-face'."
-  (intern-soft
-   (concat "rainbow-delimiters-depth-"
-           (number-to-string
-            (if (<= depth rainbow-delimiters-max-face-count)
-                ;; Our nesting depth has a face defined for it.
-                depth
-              ;; Deeper than # of defined faces; cycle back through to
-              ;; `rainbow-delimiters-outermost-only-face-count' + 1.
-              ;; Return face # that corresponds to current nesting level.
-              (+ 1 rainbow-delimiters-outermost-only-face-count
-                 (mod (- depth rainbow-delimiters-max-face-count 1)
-                      (- rainbow-delimiters-max-face-count
-                         rainbow-delimiters-outermost-only-face-count)))))
-           "-face")))
+The returned value is either `rainbow-delimiters-unmatched-face',
+`rainbow-delimiters-mismatched-face', or one of the
+`rainbow-delimiters-depth-N-face' faces, obeying
+`rainbow-delimiters-max-face-count' and
+`rainbow-delimiters-outermost-only-face-count'."
+  (cond
+   ((<= depth 0)
+    'rainbow-delimiters-unmatched-face)
+   ((not match)
+    'rainbow-delimiters-mismatched-face)
+   (t
+    (intern-soft
+     (concat "rainbow-delimiters-depth-"
+             (number-to-string
+              (if (<= depth rainbow-delimiters-max-face-count)
+                  ;; Our nesting depth has a face defined for it.
+                  depth
+                ;; Deeper than # of defined faces; cycle back through to
+                ;; `rainbow-delimiters-outermost-only-face-count' + 1.
+                ;; Return face # that corresponds to current nesting level.
+                (+ 1 rainbow-delimiters-outermost-only-face-count
+                   (mod (- depth rainbow-delimiters-max-face-count 1)
+                        (- rainbow-delimiters-max-face-count
+                           rainbow-delimiters-outermost-only-face-count)))))
+             "-face")))))
 
 (defun rainbow-delimiters--apply-color (loc depth match)
   "Highlight a single delimiter at LOC according to DEPTH.
@@ -171,14 +197,9 @@ MATCH is nil iff it's a mismatched closing delimiter.
 
 The delimiter is not highlighted if it's a blacklisted delimiter."
   (unless (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)
-    (let ((delim-face (cond
-                       ((<= depth 0)
-                        'rainbow-delimiters-unmatched-face)
-                       ((not match)
-                        'rainbow-delimiters-mismatched-face)
-                       (t
-                        (rainbow-delimiters--depth-face depth)))))
-      (font-lock-prepend-text-property loc (1+ loc) 'face delim-face))))
+    (let ((face (funcall rainbow-delimiters-pick-face-function depth match loc)))
+      (when face
+        (font-lock-prepend-text-property loc (1+ loc) 'face face)))))
 
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
   "Return t if char at LOC should not be highlighted.

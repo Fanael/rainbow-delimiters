@@ -262,5 +262,19 @@
                    1 2 (face (rainbow-delimiters-depth-2-face))
                    2 3 (face (rainbow-delimiters-depth-2-face)))))))))
 
+(ert-deftest can-customize-face-picker ()
+  (let ((rainbow-delimiters-pick-face-function
+         (lambda (_depth _loc _match)
+           'font-lock-keyword-face)))
+    (with-temp-buffer-in-mode 'emacs-lisp-mode
+      (with-string (str "(())")
+        (should (ert-equal-including-properties
+                 (buffer-string)
+                 #("(())"
+                   0 1 (face (font-lock-keyword-face))
+                   1 2 (face (font-lock-keyword-face))
+                   2 3 (face (font-lock-keyword-face))
+                   3 4 (face (font-lock-keyword-face)))))))))
+
 (provide 'rainbow-delimiters-test)
 ;;; rainbow-delimiters-test.el ends here
