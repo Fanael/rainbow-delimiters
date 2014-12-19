@@ -90,12 +90,13 @@ When depth exceeds innermost defined face, colors cycle back through."
   :prefix "rainbow-delimiters-")
 
 (defcustom rainbow-delimiters-delimiter-blacklist '()
-  "Disable highlighting of selected delimiters.
-
-Delimiters in this list are not highlighted."
-  :tag "Delimiter Blacklist"
-  :type '(repeat character)
+  "Unused variable pending removal.
+To prevent highlighting of certain delimiters, use
+`rainbow-delimiters-pick-face-function' instead."
   :group 'rainbow-delimiters)
+(make-obsolete-variable 'rainbow-delimiters-delimiter-blacklist
+                        'rainbow-delimiters-pick-face-function
+                        "2.1")
 
 (defcustom rainbow-delimiters-pick-face-function
   #'rainbow-delimiters-default-pick-face
@@ -193,13 +194,10 @@ The returned value is either `rainbow-delimiters-unmatched-face',
 
 LOC is the location of the character to add text properties to.
 DEPTH is the nested depth at LOC, which determines the face to use.
-MATCH is nil iff it's a mismatched closing delimiter.
-
-The delimiter is not highlighted if it's a blacklisted delimiter."
-  (unless (memq (char-after loc) rainbow-delimiters-delimiter-blacklist)
-    (let ((face (funcall rainbow-delimiters-pick-face-function depth match loc)))
-      (when face
-        (font-lock-prepend-text-property loc (1+ loc) 'face face)))))
+MATCH is nil iff it's a mismatched closing delimiter."
+  (let ((face (funcall rainbow-delimiters-pick-face-function depth match loc)))
+    (when face
+      (font-lock-prepend-text-property loc (1+ loc) 'face face))))
 
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
   "Return t if char at LOC should not be highlighted.
