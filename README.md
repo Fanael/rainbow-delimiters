@@ -54,6 +54,14 @@ To start the mode automatically in most programming modes (Emacs 24 and above):
 
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
+### Global mode
+
+There's no `global-rainbow-delimiters-mode` anymore. It used to exist, but it
+was impossible to keep it from breaking some major modes. It's *strongly
+recommended* to use major mode hooks instead, as shown above. There's nothing
+stopping you from defining `global-rainbow-delimiters-mode` yourself, but if it
+breaks something, you're on your own.
+
 ## Customization
 
 To customize various options, including the color theme:
