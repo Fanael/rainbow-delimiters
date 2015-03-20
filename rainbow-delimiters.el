@@ -2,7 +2,7 @@
 
 ;; Copyright (C)
 ;;   2010-2013 Jeremy Rayman
-;;   2013-2014 Fanael Linithien
+;;   2013-2015 Fanael Linithien
 ;; Author: Jeremy Rayman <opensource@jeremyrayman.com>
 ;;         Fanael Linithien <fanael4@gmail.com>
 ;; Maintainer: Fanael Linithien <fanael4@gmail.com>
