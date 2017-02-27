@@ -73,3 +73,8 @@ You can specify custom colors by customizing following faces:
    depth. Depth begins at 1, the outermost color. Faces exist for depths 1-9.
  * The unmatched delimiter face: `rainbow-delimiters-unmatched-face`.
  * The mismatched delimiter face: `rainbow-delimiters-mismatched-face`.
+
+## Deprecations
+
+The edior-wide `(global-rainbow-delimiters-mode)` is no longer supported.
+
