@@ -24,4 +24,4 @@ jobs:
         version: ${{ matrix.emacs_version }}
     - uses: actions/checkout@v1
     - name: Run tests
-      run: './.github/workflows/test.sh'
+      run: './run-tests.sh'
