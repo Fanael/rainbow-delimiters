@@ -2,12 +2,12 @@
 
 ;; Copyright (C)
 ;;   2010-2013 Jeremy Rayman
-;;   2013-2016 Fanael Linithien
+;;   2013-2019 Fanael Linithien
 ;; Author: Jeremy Rayman <opensource@jeremyrayman.com>
 ;;         Fanael Linithien <fanael4@gmail.com>
 ;; Maintainer: Fanael Linithien <fanael4@gmail.com>
 ;; Created: 2010-09-02
-;; Version: 2.1.3
+;; Version: 2.1.4
 ;; Keywords: faces, convenience, lisp, tools
 ;; Homepage: https://github.com/Fanael/rainbow-delimiters
 
@@ -109,15 +109,19 @@ The function should not move the point or mark or change the match data."
   "Face inherited by all other rainbow-delimiter faces."
   :group 'rainbow-delimiters-faces)
 
-(defface rainbow-delimiters-unmatched-face
+(defface rainbow-delimiters-base-error-face
   '((default (:inherit rainbow-delimiters-base-face))
-    (((background light)) (:foreground "#88090B"))
-    (((background dark)) (:inherit rainbow-delimiters-base-face :foreground "#88090B")))
+    (t (:foreground "#88090B")))
+  "Face inherited by all other rainbow-delimiter error faces."
+  :group 'rainbow-delimiters-faces)
+
+(defface rainbow-delimiters-unmatched-face
+  '((default (:inherit rainbow-delimiters-base-error-face)))
   "Face to highlight unmatched closing delimiters in."
   :group 'rainbow-delimiters-faces)
 
 (defface rainbow-delimiters-mismatched-face
-  '((t :inherit (rainbow-delimiters-unmatched-face rainbow-delimiters-base-face)))
+  '((default (:inherit rainbow-delimiters-unmatched-face)))
   "Face to highlight mismatched closing delimiters in."
   :group 'rainbow-delimiters-faces)
 
