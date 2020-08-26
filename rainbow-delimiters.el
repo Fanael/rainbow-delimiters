@@ -231,6 +231,7 @@ Returns t if char at loc meets one of the following conditions:
   "Highlight delimiters in region between point and END.
 
 Used by font-lock for dynamic highlighting."
+  (widen)
   (let* ((last-ppss-pos (point))
          (ppss (syntax-ppss)))
     (while (> end (progn (skip-syntax-forward "^()" end)
