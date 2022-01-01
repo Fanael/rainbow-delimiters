@@ -1,3 +1,4 @@
+[![NonGNU ELPA](https://elpa.nongnu.org/nongnu/rainbow-delimiters.svg)](https://elpa.nongnu.org/nongnu/rainbow-delimiters.html)
 [![MELPA](http://melpa.org/packages/rainbow-delimiters-badge.svg)](http://melpa.org/#/rainbow-delimiters)
 [![MELPA Stable](http://stable.melpa.org/packages/rainbow-delimiters-badge.svg)](http://stable.melpa.org/#/rainbow-delimiters)
 [![Build Status](https://github.com/Fanael/rainbow-delimiters/workflows/CI/badge.svg)](https://github.com/Fanael/rainbow-delimiters/actions)
