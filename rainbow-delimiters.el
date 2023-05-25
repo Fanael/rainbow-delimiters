@@ -104,6 +104,12 @@ The function should not move the point or mark or change the match data."
   :type 'function
   :group 'rainbow-delimiters)
 
+(defcustom rainbow-delimiters-highlight-first-term-p nil
+  "If non-nil, enable highlighting of first term in a given level."
+  :tag "Highlight First Term?"
+  :type 'boolean
+  :group 'rainbow-delimiters)
+
 (defface rainbow-delimiters-base-face
   '((default (:inherit unspecified)))
   "Face inherited by all other rainbow-delimiter faces."
@@ -191,15 +197,51 @@ The returned value is either `rainbow-delimiters-unmatched-face',
                            rainbow-delimiters-outermost-only-face-count)))))
              "-face")))))
 
-(defun rainbow-delimiters--apply-color (loc depth match)
+(defconst rainbow-delimiters--term-regex (rx (1+ (or (syntax word)
+                                                     (syntax symbol)
+                                                     (syntax punctuation)
+                                                     (syntax expression-prefix))))
+  "Regex matching terms.
+
+Used to highlight first term of each level in
+`rainbow-delimiters-propertize-delimiter' if
+`rainbow-delimiters-highlight-first-term-p' is non-nil.")
+
+(defun rainbow-delimiters--end-of-first-term (end)
+  "Return the position following the first term after the opening delimiter.
+
+If the first term does not appear before END or before another
+delimiter, return nil."
+  (let* ((term-end (save-excursion
+                     (re-search-forward rainbow-delimiters--term-regex end t)))
+         (next-level (save-excursion
+                       (forward-char)   ; skip past current delim
+                       (skip-syntax-forward "^()" end)
+                       (point))))
+    (when (and term-end
+               ;; term-end came before next-level, or no next-level
+               (or (not next-level)
+                   (<= term-end next-level)))
+      term-end)))
+
+(defun rainbow-delimiters--apply-color (loc depth end open match)
   "Highlight a single delimiter at LOC according to DEPTH.
+
+Also highlight the first term after an opening delimiter, if
+`rainbow-delimiters-highlight-first-term-p' is non-nil.
 
 LOC is the location of the character to add text properties to.
 DEPTH is the nested depth at LOC, which determines the face to use.
+END specifies how far to scan for the end of the first term.
+OPEN is non-nil iff it's an opening delimiter.
 MATCH is nil iff it's a mismatched closing delimiter."
-  (let ((face (funcall rainbow-delimiters-pick-face-function depth match loc)))
+  (let ((face (funcall rainbow-delimiters-pick-face-function depth match loc))
+        (end (or (and open
+                      rainbow-delimiters-highlight-first-term-p
+                      (rainbow-delimiters--end-of-first-term end))
+                 (1+ loc))))
     (when face
-      (font-lock-prepend-text-property loc (1+ loc) 'face face))))
+      (font-lock-prepend-text-property loc end 'face face))))
 
 (defun rainbow-delimiters--char-ineligible-p (loc ppss delim-syntax-code)
   "Return t if char at LOC should not be highlighted.
@@ -253,11 +295,11 @@ Used by font-lock for dynamic highlighting."
            ((= 4 (logand #xFFFF delim-syntax-code))
             ;; The (1+ ...) is needed because `parse-partial-sexp' returns the
             ;; depth at the opening delimiter, not in the block being started.
-            (rainbow-delimiters--apply-color delim-pos (1+ (nth 0 ppss)) t))
+            (rainbow-delimiters--apply-color delim-pos (1+ (nth 0 ppss)) end t t))
            (t
             ;; Not an opening delimiter, so it's a closing delimiter.
             (let ((matches-p (eq (cdr delim-syntax) (char-after (nth 1 ppss)))))
-              (rainbow-delimiters--apply-color delim-pos (nth 0 ppss) matches-p))))))))
+              (rainbow-delimiters--apply-color delim-pos (nth 0 ppss) end nil matches-p))))))))
   ;; We already fontified the delimiters, tell font-lock there's nothing more
   ;; to do.
   nil)
