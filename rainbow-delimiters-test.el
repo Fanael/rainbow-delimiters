@@ -147,7 +147,7 @@
       (should (ert-equal-including-properties
                (progn
                  (remove-list-of-text-properties
-                  (point-min) (point-max) '(category c-type syntax-table))
+                  (point-min) (point-max) '(category c-type c-<>-c-types-set syntax-table))
                  (buffer-string))
                #("foo<int> x;"
                  0 3 (face font-lock-type-face)
